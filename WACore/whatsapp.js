@@ -22,6 +22,7 @@ export class WASocketManager {
     SESSION_CONNECTION_TIMEOUTS = new Map();
     SESSION_PAIRING_TIMEOUTS = new Map();
     SESSION_LOCKS = new Map();
+    SESSION_CONNECT_DATA = new Map();
     WEB_SOCKET = new Map();
     groupCache;
     cachedWAVersion = null;
@@ -57,7 +58,7 @@ export class WASocketManager {
         this.clearAllTimeouts(sessionId);
         const timeoutId = setTimeout(async () => {
             consola.warn(`[WA: ${sessionId}] Connection timeout (${this.CONNECTION_TIMEOUT_SECONDS} seconds). Destroying...`);
-            this.WebSocketEmit(sessionId, 'device:status', {
+            this.emitDeviceStatus(sessionId, {
                 id: sessionId,
                 type: 'connection:timeout',
                 message: 'Connection timeout. Session destroyed automatically.',
@@ -72,6 +73,16 @@ export class WASocketManager {
         }, this.CONNECTION_TIMEOUT_SECONDS * 1000);
         this.SESSION_CONNECTION_TIMEOUTS.set(sessionId, timeoutId);
         consola.info(`[WA: ${sessionId}] Connection timeout set for ${this.CONNECTION_TIMEOUT_SECONDS} seconds.`);
+    }
+    emitDeviceStatus(sessionId, data) {
+        this.SESSION_CONNECT_DATA.set(sessionId, {
+            ...data,
+            updatedAt: Date.now(),
+        });
+        this.WebSocketEmit(sessionId, 'device:status', data);
+    }
+    getConnectData(sessionId) {
+        return this.SESSION_CONNECT_DATA.get(sessionId) || null;
     }
     WebSocketEmit(sessionId, key, data) {
         const sockets = this.WEB_SOCKET.get(sessionId);
@@ -158,7 +169,7 @@ export class WASocketManager {
                     catch (error) {
                         consola.error(`[WA: ${sessionId}] Error stopping session: ${error?.message}`);
                     }
-                    this.WebSocketEmit(sessionId, 'device:status', {
+                    this.emitDeviceStatus(sessionId, {
                         id: sessionId,
                         type: 'connection:max_reconnect_reached',
                         message: `Max reconnect attempts reached. Session stopped.`,
@@ -208,7 +219,7 @@ export class WASocketManager {
                 const pairingTimeoutId = setTimeout(async () => {
                     try {
                         const code = await sock.requestPairingCode(deviceNumber);
-                        this.WebSocketEmit(sessionId, 'device:status', {
+                        this.emitDeviceStatus(sessionId, {
                             id: sessionId,
                             type: 'connection:pairing',
                             message: 'Pairing Code Received',
@@ -219,7 +230,7 @@ export class WASocketManager {
                     }
                     catch (error) {
                         consola.error(`[WA: ${sessionId}] Error requesting pairing code: ${error.message}`);
-                        this.WebSocketEmit(sessionId, 'device:status', {
+                        this.emitDeviceStatus(sessionId, {
                             id: sessionId,
                             type: 'connection:pairing_error',
                             message: 'Error requesting pairing code',
@@ -238,7 +249,7 @@ export class WASocketManager {
                         const { connection, lastDisconnect, qr } = update;
                         if (qr && usePairingCode === false) {
                             const qrDataURL = await QRCode.toDataURL(qr);
-                            this.WebSocketEmit(sessionId, 'device:status', {
+                            this.emitDeviceStatus(sessionId, {
                                 id: sessionId,
                                 type: 'connection:qr',
                                 message: 'QR Code Received',
@@ -252,7 +263,7 @@ export class WASocketManager {
                             if (shouldReconnect) {
                                 this.SESSION_STATUS.set(sessionId, 'reconnecting');
                                 consola.warn(`[WA: ${sessionId}] Connection closed, attempting reconnect...`);
-                                this.WebSocketEmit(sessionId, 'device:status', {
+                                this.emitDeviceStatus(sessionId, {
                                     id: sessionId,
                                     type: 'connection:reconnecting',
                                     message: 'Reconnecting...',
@@ -272,7 +283,7 @@ export class WASocketManager {
                                 catch (error) {
                                     message = `Error removing session: ${error.message}`;
                                 }
-                                this.WebSocketEmit(sessionId, 'device:status', {
+                                this.emitDeviceStatus(sessionId, {
                                     id: sessionId,
                                     type: 'connection:logout',
                                     message: message,
@@ -282,7 +293,7 @@ export class WASocketManager {
                         else if (connection === 'connecting') {
                             this.SESSION_STATUS.set(sessionId, 'connecting');
                             consola.info(`[WA: ${sessionId}] Connecting...`);
-                            this.WebSocketEmit(sessionId, 'device:status', {
+                            this.emitDeviceStatus(sessionId, {
                                 id: sessionId,
                                 type: 'connection:connecting',
                                 message: 'Connecting...',
@@ -291,7 +302,7 @@ export class WASocketManager {
                         else if (connection === 'open') {
                             this.SESSION_STATUS.set(sessionId, 'connected');
                             consola.success(`[WA: ${sessionId}] Connection Opened`);
-                            this.WebSocketEmit(sessionId, 'device:status', {
+                            this.emitDeviceStatus(sessionId, {
                                 id: sessionId,
                                 type: 'connection:open',
                                 message: 'Connected',
@@ -333,6 +344,16 @@ export class WASocketManager {
         this.SESSIONS.delete(sessionId);
         this.SESSION_STATUS.set(sessionId, 'stopped');
         this.SESSION_ATTEMPTS.delete(sessionId);
+        this.SESSION_CONNECT_DATA.delete(sessionId);
+        this.clearAllTimeouts(sessionId);
+        this.clearGroupCache(sessionId);
+    }
+    async resetAuthState(sessionId) {
+        const { removeCreds } = await this.useAuthState(sessionId);
+        removeCreds();
+        this.SESSION_STATUS.delete(sessionId);
+        this.SESSION_ATTEMPTS.delete(sessionId);
+        this.SESSION_CONNECT_DATA.delete(sessionId);
         this.clearAllTimeouts(sessionId);
         this.clearGroupCache(sessionId);
     }
@@ -347,6 +368,7 @@ export class WASocketManager {
         this.SESSIONS.delete(sessionId);
         this.SESSION_STATUS.delete(sessionId);
         this.SESSION_ATTEMPTS.delete(sessionId);
+        this.SESSION_CONNECT_DATA.delete(sessionId);
         this.clearAllTimeouts(sessionId);
         this.clearGroupCache(sessionId);
         try {
@@ -418,6 +440,7 @@ export class WASocketManager {
         this.SESSION_PAIRING_TIMEOUTS.forEach((t) => clearTimeout(t));
         this.SESSION_PAIRING_TIMEOUTS.clear();
         this.SESSION_LOCKS.clear();
+        this.SESSION_CONNECT_DATA.clear();
         this.groupCache.clear();
         const succeeded = results.filter((r) => r.status === 'fulfilled').length;
         consola.success(`[WA] Shutdown: ${succeeded}/${sessionIds.length} sessions stopped`);

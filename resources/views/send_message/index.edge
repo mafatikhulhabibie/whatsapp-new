@@ -1,0 +1,339 @@
+@layouts.dash.app({
+  title: 'SEND MESSAGE'
+})
+
+  <div
+    class="lazy-container-sm"
+    x-data="sendMessageForm({
+      devices: {{ JSON.stringify(devices) }},
+      apiUrl: '{{ `${request.protocol()}://${request.host()}/api/message` }}'
+    })"
+  >
+    <section class="flex flex-row flex-wrap justify-between mb-5 gap-5">
+      <div>
+        <div class="text-lg font-bold">
+          Send Message
+        </div>
+        <div class="text-sm text-cat-600 dark:text-cat-400">
+          Kirim pesan teks, gambar, dokumen, video, atau lokasi langsung dari panel.
+        </div>
+      </div>
+    </section>
+
+    @card({ class: 'p-5 mb-5' })
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <div>
+          @!label({ for: 'device', label: 'Device' })
+          <select
+            id="device"
+            x-model="deviceId"
+            class="appearance-none block w-full px-3 py-2.5 text-sm rounded-md focus:ring-[1.7px] focus:outline-none focus:ring-cat-700 dark:focus:ring-cat-200 bg-white dark:bg-cat-700/10 border border-cat-300 dark:border-cat-700/50"
+          >
+            <option value="">Pilih device...</option>
+            @each(device in devices)
+              <option value="{{ device.id }}">{{ device.name }} ({{ device.number }}) — {{ device.status }}</option>
+            @end
+          </select>
+          <p class="text-xs text-cat-500 mt-1.5" x-show="selectedDevice && selectedDevice.status !== 'connected'">
+            Device harus status <strong>connected</strong> agar pesan terkirim.
+          </p>
+        </div>
+        <div>
+          @!label({ for: 'to', label: 'Nomor Tujuan' })
+          @!input({
+            type: 'text',
+            id: 'to',
+            placeholder: '0822..., +62..., +1..., +60...',
+            'x-model': 'to',
+            'x-on:blur': 'normalizeTo()'
+          })
+          <p class="text-xs text-cat-500 mt-1.5" x-show="normalizedTo && normalizedTo !== to">
+            Akan dikirim ke: <strong x-text="normalizedTo"></strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-5 border-b border-cat-300/50 dark:border-cat-700/50 pb-4">
+        <template x-for="tab in tabs" :key="tab.id">
+          <button
+            type="button"
+            class="px-3 py-1.5 text-sm rounded-md font-medium transition-colors"
+            :class="activeTab === tab.id
+              ? 'bg-cat-900 dark:bg-white text-white dark:text-cat-900'
+              : 'bg-cat-200/60 dark:bg-cat-700/30 text-cat-700 dark:text-cat-300 hover:bg-cat-300/50 dark:hover:bg-cat-700/50'"
+            x-on:click="activeTab = tab.id"
+            x-text="tab.label"
+          ></button>
+        </template>
+      </div>
+
+      <div class="space-y-4 mb-5">
+        <div x-show="activeTab === 'text'">
+          @!label({ for: 'message', label: 'Pesan Teks' })
+          <textarea
+            id="message"
+            x-model="fields.message"
+            rows="4"
+            placeholder="Tulis pesan..."
+            class="block w-full px-3 py-2.5 text-sm rounded-md focus:ring-[1.7px] focus:outline-none focus:ring-cat-700 dark:focus:ring-cat-200 bg-white dark:bg-cat-700/10 border border-cat-300 dark:border-cat-700/50"
+          ></textarea>
+        </div>
+
+        <div x-show="activeTab === 'image'" class="space-y-4">
+          <div>
+            @!label({ for: 'image', label: 'URL Gambar' })
+            @!input({ type: 'url', id: 'image', placeholder: 'https://example.com/foto.jpg', 'x-model': 'fields.image' })
+          </div>
+          <div>
+            @!label({ for: 'image-caption', label: 'Caption (opsional)' })
+            @!input({ type: 'text', id: 'image-caption', placeholder: 'Caption gambar', 'x-model': 'fields.imageCaption' })
+          </div>
+        </div>
+
+        <div x-show="activeTab === 'document'" class="space-y-4">
+          <div>
+            @!label({ for: 'document', label: 'URL Dokumen' })
+            @!input({ type: 'url', id: 'document', placeholder: 'https://example.com/file.pdf', 'x-model': 'fields.document' })
+          </div>
+          <div>
+            @!label({ for: 'filename', label: 'Nama File (opsional)' })
+            @!input({ type: 'text', id: 'filename', placeholder: 'Laporan Bulanan', 'x-model': 'fields.filename' })
+          </div>
+        </div>
+
+        <div x-show="activeTab === 'video'" class="space-y-4">
+          <div>
+            @!label({ for: 'video', label: 'URL Video' })
+            @!input({ type: 'url', id: 'video', placeholder: 'https://example.com/video.mp4', 'x-model': 'fields.video' })
+          </div>
+          <div>
+            @!label({ for: 'video-caption', label: 'Caption (opsional)' })
+            @!input({ type: 'text', id: 'video-caption', placeholder: 'Caption video', 'x-model': 'fields.videoCaption' })
+          </div>
+        </div>
+
+        <div x-show="activeTab === 'location'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            @!label({ for: 'latitude', label: 'Latitude' })
+            @!input({ type: 'number', id: 'latitude', step: 'any', placeholder: '-6.200000', 'x-model': 'fields.latitude' })
+          </div>
+          <div>
+            @!label({ for: 'longitude', label: 'Longitude' })
+            @!input({ type: 'number', id: 'longitude', step: 'any', placeholder: '106.816666', 'x-model': 'fields.longitude' })
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        @button({
+          type: 'button',
+          'x-on:click': 'send()',
+          'x-bind:disabled': 'loading'
+        })
+          <svg class="size-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M2.01 21L23 12L2.01 3L2 10l15 2l-15 2z"/></svg>
+          <span x-text="loading ? 'Mengirim...' : 'Kirim Pesan'"></span>
+        @end
+        @button({
+          type: 'button',
+          variant: 'outline',
+          'x-on:click': 'resetFields()'
+        })
+          Reset
+        @end
+      </div>
+    @end
+
+    @card({ class: 'p-5' })
+      <div class="text-sm font-bold mb-3">Response</div>
+      <pre
+        class="text-xs bg-cat-100 dark:bg-cat-800/50 rounded-lg p-4 overflow-x-auto min-h-24 whitespace-pre-wrap"
+        x-text="responseText || 'Belum ada response. Kirim pesan untuk melihat hasilnya.'"
+      ></pre>
+    @end
+  </div>
+
+@end
+
+@pushTo('body')
+  <script>
+    function sendMessageForm({ devices, apiUrl }) {
+      return {
+        devices,
+        apiUrl,
+        deviceId: devices[0]?.id?.toString() || '',
+        to: '',
+        normalizedTo: '',
+        activeTab: 'text',
+        loading: false,
+        responseText: '',
+        tabs: [
+          { id: 'text', label: 'Teks' },
+          { id: 'image', label: 'Gambar' },
+          { id: 'document', label: 'Dokumen' },
+          { id: 'video', label: 'Video' },
+          { id: 'location', label: 'Lokasi' },
+        ],
+        fields: {
+          message: '',
+          image: '',
+          imageCaption: '',
+          document: '',
+          filename: '',
+          video: '',
+          videoCaption: '',
+          latitude: '',
+          longitude: '',
+        },
+        get selectedDevice() {
+          return this.devices.find((d) => d.id.toString() === this.deviceId.toString())
+        },
+        normalizePhoneNumber(input) {
+          if (!input) return ''
+          const trimmed = input.trim()
+          if (trimmed.includes('@')) return trimmed
+
+          const cleaned = trimmed.replace(/[\s\-().]/g, '')
+          const digitsOnly = cleaned.replace(/^\+/, '')
+
+          // Indonesia: 08xxxxxxxx
+          if (/^0\d+$/.test(digitsOnly)) {
+            return `62${digitsOnly.slice(1)}`
+          }
+
+          // International dengan +
+          if (cleaned.startsWith('+')) {
+            return digitsOnly
+          }
+
+          // Indonesia: sudah 62
+          if (digitsOnly.startsWith('62')) {
+            return digitsOnly
+          }
+
+          // Indonesia: 812..., 822..., tanpa 0/62
+          if (/^8\d{8,11}$/.test(digitsOnly)) {
+            return `62${digitsOnly}`
+          }
+
+          // Negara lain: biarkan country code asli
+          return digitsOnly
+        },
+        normalizeTo() {
+          this.normalizedTo = this.normalizePhoneNumber(this.to)
+        },
+        buildPayload() {
+          const payload = {
+            token: this.selectedDevice?.token,
+            to: this.normalizePhoneNumber(this.to),
+          }
+
+          if (this.activeTab === 'text') {
+            payload.message = this.fields.message.trim()
+          }
+          if (this.activeTab === 'image') {
+            payload.image = this.fields.image.trim()
+            if (this.fields.imageCaption.trim()) payload.caption = this.fields.imageCaption.trim()
+          }
+          if (this.activeTab === 'document') {
+            payload.document = this.fields.document.trim()
+            if (this.fields.filename.trim()) payload.filename = this.fields.filename.trim()
+          }
+          if (this.activeTab === 'video') {
+            payload.video = this.fields.video.trim()
+            if (this.fields.videoCaption.trim()) payload.caption = this.fields.videoCaption.trim()
+          }
+          if (this.activeTab === 'location') {
+            payload.latitude = Number.parseFloat(this.fields.latitude)
+            payload.longitude = Number.parseFloat(this.fields.longitude)
+          }
+
+          return payload
+        },
+        validate() {
+          if (!this.selectedDevice?.token) {
+            toast.error({ title: 'Send Message', message: 'Pilih device yang valid.' })
+            return false
+          }
+          if (this.selectedDevice.status !== 'connected') {
+            toast.error({ title: 'Send Message', message: 'Device belum connected. Hubungkan dulu di halaman Device.' })
+            return false
+          }
+          this.normalizeTo()
+          if (!this.normalizedTo) {
+            toast.error({ title: 'Send Message', message: 'Nomor tujuan wajib diisi.' })
+            return false
+          }
+
+          const payload = this.buildPayload()
+
+          if (this.activeTab === 'text' && !payload.message) {
+            toast.error({ title: 'Send Message', message: 'Pesan teks wajib diisi.' })
+            return false
+          }
+          if (this.activeTab === 'image' && !payload.image) {
+            toast.error({ title: 'Send Message', message: 'URL gambar wajib diisi.' })
+            return false
+          }
+          if (this.activeTab === 'document' && !payload.document) {
+            toast.error({ title: 'Send Message', message: 'URL dokumen wajib diisi.' })
+            return false
+          }
+          if (this.activeTab === 'video' && !payload.video) {
+            toast.error({ title: 'Send Message', message: 'URL video wajib diisi.' })
+            return false
+          }
+          if (this.activeTab === 'location' && (Number.isNaN(payload.latitude) || Number.isNaN(payload.longitude))) {
+            toast.error({ title: 'Send Message', message: 'Latitude dan longitude wajib diisi dengan benar.' })
+            return false
+          }
+
+          return true
+        },
+        async send() {
+          if (!this.validate()) return
+
+          this.loading = true
+          const toastId = toast.loading({ title: 'Send Message', message: 'Mengirim pesan...' })
+
+          try {
+            const response = await fetch(this.apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(this.buildPayload()),
+            })
+            const data = await response.json()
+            this.responseText = JSON.stringify(data, null, 2)
+
+            if (response.ok) {
+              toast.success({ title: 'Send Message', message: data.message || 'Pesan terkirim.' })
+            } else {
+              toast.error({ title: 'Send Message', message: data.message || 'Gagal mengirim pesan.' })
+            }
+          } catch (error) {
+            this.responseText = error.message
+            toast.error({ title: 'Send Message', message: error.message })
+          } finally {
+            this.loading = false
+            toast.dismiss(toastId)
+          }
+        },
+        resetFields() {
+          this.to = ''
+          this.normalizedTo = ''
+          this.fields = {
+            message: '',
+            image: '',
+            imageCaption: '',
+            document: '',
+            filename: '',
+            video: '',
+            videoCaption: '',
+            latitude: '',
+            longitude: '',
+          }
+          this.responseText = ''
+        },
+      }
+    }
+  </script>
+@end

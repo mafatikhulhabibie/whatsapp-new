@@ -27,6 +27,7 @@ export default () => {
             .prefix('device');
         router.get('user/:id', '#controllers/users_controller.show').as('users.show');
         router.post('user/:id/update', '#controllers/users_controller.update').as('users.update');
+        router.get('message/send', '#controllers/send_message_controller.index').as('message.send');
         router.get('docs/webhook', '#controllers/docs_controller.webhook').as('docs.webhook');
         router
             .get('docs/api/message', '#controllers/docs_controller.api_message')

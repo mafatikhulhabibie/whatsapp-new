@@ -1,6 +1,7 @@
 import vine, { errors } from '@vinejs/vine';
 import WASocketManager from '#wa/whatsapp';
 import Device from '#models/device';
+import { normalizeToWhatsAppNumber } from '#services/phone';
 import axios from 'axios';
 import { LRUCache } from 'lru-cache';
 const CACHE_ON_WHATSAPP = new LRUCache({
@@ -317,7 +318,10 @@ export default class MessageController {
         return onWhatsApp[0]?.jid || jid;
     }
     toJid(jid) {
-        return jid.includes('@') ? jid : `${jid}@s.whatsapp.net`;
+        if (jid.includes('@')) {
+            return jid;
+        }
+        return `${normalizeToWhatsAppNumber(jid)}@s.whatsapp.net`;
     }
     handleError(error, response) {
         if (error instanceof errors.E_VALIDATION_ERROR) {

@@ -22,26 +22,135 @@
       </div>
 
       <div>
-        <div class="font-semibold mb-3"># Example Send Text With NodeJS</div>
-        <div class="text-sm mb-3">Endpoint API sendMessage: <span class="select-all underline">{{ `${request.protocol()}://${request.host()}/api/message` }}</span></div>
-        <pre class="text-[0.9rem] p-0"><code class="language-js">async function sendMessage(data) {
-  const url = &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot;;
+        <div class="font-semibold mb-3"># Endpoint</div>
+        <div class="text-sm mb-3">
+          <span class="select-all underline">{{ `${request.protocol()}://${request.host()}/api/message` }}</span>
+          <span class="text-cat-600 dark:text-cat-400"> — Method: GET atau POST</span>
+        </div>
+        <div class="text-sm text-cat-600 dark:text-cat-400 mb-3">
+          Wajib: <code class="text-xs">token</code> (device token) dan <code class="text-xs">to</code> (nomor tujuan, contoh: 628123456789).
+          Device harus status <strong>Connected</strong>.
+        </div>
+      </div>
 
-  const response = await fetch(url, {
-    method: &quot;POST&quot;,
-    headers: {
-      &quot;Content-Type&quot;: &quot;application/json&quot;,
-    },
-    body: JSON.stringify(data),
-  });
-  console.log(await response.json());
-}
+      <div>
+        <div class="font-semibold mb-3"># 1. Kirim Teks</div>
+        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
+    &quot;to&quot;: &quot;628123456789&quot;,
+    &quot;message&quot;: &quot;Halo, ini pesan teks&quot;
+  }'</code></pre>
+        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
+sendWaMessage([
+    'token'   =&gt; 'TOKEN_DEVICE',
+    'to'      =&gt; '628123456789',
+    'message' =&gt; 'Halo, ini pesan teks',
+]);</code></pre>
+      </div>
 
-sendMessage({
-  token: 'TOKEN',
-  to: 'RECIPIENT NUMBER',
-  message: &quot;Hai&quot;,
-})</code></pre>
+      <div>
+        <div class="font-semibold mb-3"># 2. Kirim Gambar</div>
+        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
+    &quot;to&quot;: &quot;628123456789&quot;,
+    &quot;image&quot;: &quot;https://example.com/foto.jpg&quot;,
+    &quot;caption&quot;: &quot;Ini caption gambar&quot;
+  }'</code></pre>
+        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
+sendWaMessage([
+    'token'   =&gt; 'TOKEN_DEVICE',
+    'to'      =&gt; '628123456789',
+    'image'   =&gt; 'https://example.com/foto.jpg',
+    'caption' =&gt; 'Ini caption gambar',
+]);</code></pre>
+      </div>
+
+      <div>
+        <div class="font-semibold mb-3"># 3. Kirim Dokumen</div>
+        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
+    &quot;to&quot;: &quot;628123456789&quot;,
+    &quot;document&quot;: &quot;https://example.com/laporan.pdf&quot;,
+    &quot;filename&quot;: &quot;Laporan Bulanan&quot;
+  }'</code></pre>
+        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
+sendWaMessage([
+    'token'    =&gt; 'TOKEN_DEVICE',
+    'to'       =&gt; '628123456789',
+    'document' =&gt; 'https://example.com/laporan.pdf',
+    'filename' =&gt; 'Laporan Bulanan',
+]);</code></pre>
+      </div>
+
+      <div>
+        <div class="font-semibold mb-3"># 4. Kirim Video</div>
+        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
+    &quot;to&quot;: &quot;628123456789&quot;,
+    &quot;video&quot;: &quot;https://example.com/video.mp4&quot;,
+    &quot;caption&quot;: &quot;Ini caption video&quot;
+  }'</code></pre>
+        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
+sendWaMessage([
+    'token'   =&gt; 'TOKEN_DEVICE',
+    'to'      =&gt; '628123456789',
+    'video'   =&gt; 'https://example.com/video.mp4',
+    'caption' =&gt; 'Ini caption video',
+]);</code></pre>
+      </div>
+
+      <div>
+        <div class="font-semibold mb-3"># 5. Kirim Lokasi</div>
+        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
+    &quot;to&quot;: &quot;628123456789&quot;,
+    &quot;latitude&quot;: -6.200000,
+    &quot;longitude&quot;: 106.816666
+  }'</code></pre>
+        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
+sendWaMessage([
+    'token'     =&gt; 'TOKEN_DEVICE',
+    'to'        =&gt; '628123456789',
+    'latitude'  =&gt; -6.200000,
+    'longitude' =&gt; 106.816666,
+]);</code></pre>
+      </div>
+
+      <div>
+        <div class="font-semibold mb-3"># Helper PHP (reusable)</div>
+        <pre class="text-[0.9rem] p-0"><code class="language-php">&lt;?php
+function sendWaMessage(array $payload): array
+{
+    $api = '{{ `${request.protocol()}://${request.host()}/api/message` }}';
+
+    $ch = curl_init($api);
+    curl_setopt_array($ch, [
+        CURLOPT_POST           =&gt; true,
+        CURLOPT_HTTPHEADER     =&gt; ['Content-Type: application/json'],
+        CURLOPT_POSTFIELDS     =&gt; json_encode($payload),
+        CURLOPT_RETURNTRANSFER =&gt; true,
+        CURLOPT_TIMEOUT        =&gt; 30,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    return [
+        'status' =&gt; $httpCode,
+        'body'   =&gt; json_decode($response, true),
+    ];
+}</code></pre>
       </div>
     </section>
   </div>
