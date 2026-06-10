@@ -1,0 +1,545 @@
+@layouts.dash.app({
+  title: 'DEVICE'
+})
+
+  <div class="lazy-container-sm">
+    <div class="grid grid-cols-12 gap-5 mb-5">
+      <div class="col-span-12 md:col-span-8 order-2 md:order-1">
+        @card({
+          class: 'p-5 md:aspect-[5/3] flex justify-center items-center w-full h-full mb-5',
+        })
+          <div class="flex flex-col justify-between items-center h-full w-full">
+            <div class="h-full min-h-40 flex justify-center items-center">
+              <div data-status style="display: none;" class="text-cat-500 font-medium text-sm">
+                Disconnected
+              </div>
+
+              <div data-preview-pairing-code style="display: none;" x-data="{ pairingCode: '' }" class="py-10 motion-preset-fade text-center">
+                <div class="flex gap-1">
+                  <div class="flex items-center gap-1">
+                    <template x-for="(code, index) in pairingCode.split('')">
+                      <div class="flex items-center gap-1">
+                        <div class="bg-cat-200 dark:bg-cat-750 rounded-lg w-7 h-7 flex items-center justify-center" x-text="code"></div>
+                        <template x-if="index === 3">
+                          <div class="select-none">-</div>
+                        </template>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+                <div data-timer class="bg-cat-200 dark:bg-cat-700 px-2 py-1 text-xs rounded-full font-medium inline-block w-auto mt-3">
+                  --:--
+                </div>
+              </div>
+
+              <div data-preview-qr-code style="display: none;" class="py-10 motion-preset-fade text-center">
+                <img class="w-52 aspect-square rounded-lg" src="" alt="qr">
+                <div data-timer class="bg-cat-200 dark:bg-cat-700 px-2 py-1 text-xs rounded-full font-medium inline-block w-auto mt-3">
+                  --:--
+                </div>
+              </div>
+
+            </div>
+            <div class="w-full">
+              <div data-buttons class="flex flex-col justify-center md:flex-row gap-5 w-full">
+                @button({
+                  type: 'button',
+                  class: 'w-full motion-preset-fade',
+                  'data-button': 'pairing-code',
+                  style: 'display: none',
+                  onclick: 'deviceStart({ usePairingCode: true })',
+                })
+                  <svg class="size-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,640,512"><path d="M576 112c8.8 0 16 7.2 16 16l0 256c0 8.8-7.2 16-16 16L64 400c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l512 0zM64 64C28.7 64 0 92.7 0 128L0 384c0 35.3 28.7 64 64 64l512 0c35.3 0 64-28.7 64-64l0-256c0-35.3-28.7-64-64-64L64 64zm40 120c0 13.3 10.7 24 24 24l8 0 0 96-16 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0-120c0-13.3-10.7-24-24-24l-32 0c-13.3 0-24 10.7-24 24zm190.6 30.4c5.7-8 17.5-8.6 24-1.2c5.2 5.9 5 14.7-.3 20.5l-72 78c-6.5 7-8.2 17.2-4.3 25.9s12.5 14.4 22 14.4l88 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-33.2 0 34.8-37.7c22-23.8 22.4-60.3 1.1-84.7c-26.9-30.7-75.4-28.4-99.2 4.9l-11.1 15.6c-7.7 10.8-5.2 25.8 5.6 33.5s25.8 5.2 33.5-5.6l11.1-15.6z" fill="currentColor" style="opacity: 1;"></path></svg>
+                  Start with Pairing Code
+                @end
+
+                @button({
+                  type: 'button',
+                  class: 'w-full motion-preset-fade',
+                  'data-button': 'qr-code',
+                  style: 'display: none',
+                  onclick: 'deviceStart({ usePairingCode: false })',
+                })
+                  <svg class="size-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,448,512"><path d="M144 64L48 64c-8.8 0-16 7.2-16 16l0 96c0 8.8 7.2 16 16 16l96 0c8.8 0 16-7.2 16-16l0-96c0-8.8-7.2-16-16-16zM48 32l96 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-96 0c-26.5 0-48-21.5-48-48L0 80C0 53.5 21.5 32 48 32zm96 288l-96 0c-8.8 0-16 7.2-16 16l0 96c0 8.8 7.2 16 16 16l96 0c8.8 0 16-7.2 16-16l0-96c0-8.8-7.2-16-16-16zM48 288l96 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-96 0c-26.5 0-48-21.5-48-48l0-96c0-26.5 21.5-48 48-48zM304 64c-8.8 0-16 7.2-16 16l0 96c0 8.8 7.2 16 16 16l96 0c8.8 0 16-7.2 16-16l0-96c0-8.8-7.2-16-16-16l-96 0zM256 80c0-26.5 21.5-48 48-48l96 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-96 0c-26.5 0-48-21.5-48-48l0-96zm0 224c0-8.8 7.2-16 16-16l64 0c8.8 0 16 7.2 16 16l0 68 64 0 0-68c0-8.8 7.2-16 16-16s16 7.2 16 16l0 84c0 8.8-7.2 16-16 16l-96 0c-8.8 0-16-7.2-16-16l0-68-32 0 0 152c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-168zM88 104l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16zM72 376c0-8.8 7.2-16 16-16l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16zM344 104l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16zM320 448c0-8.8 7.2-16 16-16l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16zm96-16l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16z" fill="currentColor" style="opacity: 1;"></path></svg>
+                  Start with QR Code
+                @end
+
+                @button({
+                  type: 'button',
+                  class: 'motion-preset-fade',
+                  'data-button': 'start-session',
+                  style: 'display: none',
+                  onclick: 'deviceStart({ usePairingCode: false })',
+                })
+                  Start Device
+                @end
+
+                @button({
+                  type: 'button',
+                  class: 'motion-preset-pop motion-duration-200',
+                  'data-button': 'copy-code',
+                  onclick: 'copyCode()',
+                  style: 'display: none',
+                })
+                  <svg class="size-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,512,512"><path d="M64 464l224 0c8.8 0 16-7.2 16-16l0-64 48 0 0 64c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 224c0-35.3 28.7-64 64-64l64 0 0 48-64 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16zM224 304l224 0c8.8 0 16-7.2 16-16l0-224c0-8.8-7.2-16-16-16L224 48c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16zm-64-16l0-224c0-35.3 28.7-64 64-64L448 0c35.3 0 64 28.7 64 64l0 224c0 35.3-28.7 64-64 64l-224 0c-35.3 0-64-28.7-64-64z" fill="currentColor" style="opacity: 1;"></path></svg>
+                  Copy Code
+                @end
+
+                @button({
+                  type: 'button',
+                  class: 'motion-preset-pop motion-duration-200',
+                  'data-button': 'force-logout',
+                  style: 'display: none',
+                  onclick: 'deviceLogout()',
+                })
+                  <svg class="size-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,512,512"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z" fill="currentColor" style="opacity: 1;"></path></svg>
+                  Force Logout
+                @end
+
+                @button({
+                  type: 'button',
+                  class: 'motion-preset-pop motion-duration-200',
+                  'data-button': 'logout',
+                  style: 'display: none',
+                  onclick: 'deviceLogout()',
+                })
+                  <svg class="size-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,512,512"><path d="M7 273c-9.4-9.4-9.4-24.6 0-33.9L135 111c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-87 87L328 232c13.3 0 24 10.7 24 24s-10.7 24-24 24L81.9 280l87 87c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0L7 273zM344 80c-13.3 0-24-10.7-24-24s10.7-24 24-24l80 0c48.6 0 88 39.4 88 88l0 272c0 48.6-39.4 88-88 88l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l80 0c22.1 0 40-17.9 40-40l0-272c0-22.1-17.9-40-40-40l-80 0z" fill="currentColor" style="opacity: 1;"></path></svg>
+                  Log Out
+                @end
+
+                @button({
+                  type: 'button',
+                  class: 'motion-preset-pop motion-duration-200',
+                  'data-button': 'stop-session',
+                  style: 'display: none',
+                  onclick: 'deviceStop()',
+                })
+                  <svg class="size-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,512,512"><path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm192-96l128 0c17.7 0 32 14.3 32 32l0 128c0 17.7-14.3 32-32 32l-128 0c-17.7 0-32-14.3-32-32l0-128c0-17.7 14.3-32 32-32z" fill="currentColor" style="opacity: 1;"></path></svg>
+                  Stop Session
+                @end
+              </div>
+            </div>
+          </div>
+        @end
+      </div>
+      <div class="col-span-12 md:col-span-4 order-1 md:order-2">
+        @card({
+          class: 'p-5 mb-5'
+        })
+          <div class="mb-5">
+            <div class="text-sm mb-3">
+              <span class="font-medium">Device Name:</span> {{ device.name }}
+            </div>
+            <div class="text-sm mb-3">
+              <span class="font-medium">Phone Number:</span> {{ device.number }}
+            </div>
+            <div class="text-sm mb-3">
+              <span class="font-medium">Registered On:</span> {{ device.createdAt.toRelative() }}
+            </div>
+          </div>
+          <div class="flex flex-col w-full gap-3">
+            <div class="flex flex-col xl:flex-row gap-3">
+              @button({
+                type: 'button',
+                class: 'w-full',
+                'x-data': '{}',
+                'x-dialog:toggle': 'token-modal',
+              })
+                <svg class="size-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,576,512"><path d="M216.6 105.4c9.6-9.2 9.9-24.3 .8-33.9s-24.3-9.9-33.9-.8l-176 168C2.7 243.2 0 249.4 0 256s2.7 12.8 7.4 17.4l176 168c9.6 9.2 24.8 8.8 33.9-.8s8.8-24.8-.8-33.9L58.8 256 216.6 105.4zm142.9 0L517.2 256 359.4 406.6c-9.6 9.2-9.9 24.3-.8 33.9s24.3 9.9 33.9 .8l176-168c4.7-4.5 7.4-10.8 7.4-17.4s-2.7-12.8-7.4-17.4l-176-168c-9.6-9.2-24.8-8.8-33.9 .8s-8.8 24.8 .8 33.9z" fill="currentColor" style="opacity: 1;"></path></svg>
+                Token
+              @end
+              @button({
+                type: 'button',
+                class: 'w-full',
+                'x-data': '{}',
+                'x-dialog:toggle': 'webhook-modal',
+              })
+                <svg class="size-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,576,512"><path d="M306 50.1c41.1 9.5 67.5 49.2 61.1 90.2c-2.1 13.1 6.9 25.4 20 27.4s25.4-6.9 27.4-20C424.8 82 382.6 18.5 316.8 3.3c-68.9-15.9-137.6 27-153.5 95.9c-10.7 46.3 5.2 92.6 37.7 122.7L129.7 336c-.6 0-1.1 0-1.7 0c-26.5 0-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48c0-8.1-2-15.8-5.6-22.5l82.8-132.5c3.4-5.4 4.5-11.9 3-18.1s-5.3-11.6-10.7-15c-28.2-17.6-43.4-51.7-35.5-85.9C220 67 262.9 40.1 306 50.1zM288 112a16 16 0 1 1 0 32 16 16 0 1 1 0-32zm42.4 38.5c3.6-6.7 5.6-14.4 5.6-22.5c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48c.6 0 1.1 0 1.7 0l82.8 132.5c3.4 5.4 8.8 9.2 15 10.7s12.7 .3 18.1-3c30.9-19.3 72.1-15.5 99 11.3c31.2 31.2 31.2 81.9 0 113.1c-26.8 26.8-68.1 30.6-99 11.3c-11.2-7-26-3.6-33.1 7.6s-3.6 26 7.6 33.1c49.4 31 115.4 25 158.4-18c50-50 50-131 0-181c-37-37-91-46.6-136.8-28.9L330.4 150.5zM112 384a16 16 0 1 1 32 0 16 16 0 1 1 -32 0zm320 0a16 16 0 1 1 32 0 16 16 0 1 1 -32 0zm64 0c0-26.5-21.5-48-48-48c-17.8 0-33.3 9.7-41.6 24L232 360c-6.4 0-12.5 2.5-17 7s-7 10.6-7 17c0 36.4-25 69.4-62 77.9c-43.1 9.9-86-16.9-95.9-60c-8.9-38.6 11.7-77.1 47.1-91.8c12.2-5.1 18-19.1 12.9-31.4s-19.1-18-31.4-12.9C22.1 289.4-11 351 3.3 412.8c15.9 68.9 84.6 111.8 153.5 95.9c51-11.8 87.7-52.5 97-100.7l152.7 0c8.3 14.3 23.8 24 41.6 24c26.5 0 48-21.5 48-48z" fill="currentColor" style="opacity: 1;"></path></svg>
+                Webhook
+              @end
+            </div>
+            @button({
+              type: 'button',
+              variant: 'destructive',
+              class: 'w-full',
+              onclick: 'deviceRemove()',
+            })
+              <svg class="size-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,448,512"><path d="M177.1 48l93.7 0c2.7 0 5.2 1.3 6.7 3.6l19 28.4-145 0 19-28.4c1.5-2.2 4-3.6 6.7-3.6zM354.2 80L317.5 24.9C307.1 9.4 289.6 0 270.9 0L177.1 0c-18.7 0-36.2 9.4-46.6 24.9L93.8 80 80.1 80 32 80l-8 0C10.7 80 0 90.7 0 104s10.7 24 24 24l11.6 0L59.6 452.7c2.5 33.4 30.3 59.3 63.8 59.3l201.1 0c33.5 0 61.3-25.9 63.8-59.3L412.4 128l11.6 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-8 0-48.1 0-13.7 0zm10.1 48L340.5 449.2c-.6 8.4-7.6 14.8-16 14.8l-201.1 0c-8.4 0-15.3-6.5-16-14.8L83.7 128l280.6 0z" fill="currentColor" style="opacity: 1;"></path></svg>
+              Remove Device
+            @end
+          </div>
+        @end
+      </div>
+    </div>
+    <div class="grid grid-cols-12 gap-5 mb-5">
+      <div class="col-span-12 md:col-span-8">
+        @card({
+          class: 'p-5'
+        })
+          <div class="text-sm font-bold mb-3">Log</div>
+          <div class="text-xs" data-log>
+          </div>
+        @end
+      </div>
+    </div>
+  </div>
+
+  @dialog({
+    id: 'webhook-modal',
+    class: '!max-w-md'
+  })
+    @dialog.body({
+      class: 'p-5'
+    })
+    @form({
+      id: 'update-webhook-form',
+      action: route('device.updateWebhook', [ device.id ]),
+      method: 'POST',
+      class: 'space-y-5'
+    })
+        {{ (typeof csrfField === 'function') ? csrfField() : '' }}
+        <div class="mb-5">
+          @!label({ for: 'webhook', label: 'Webhook URL' })
+          @!input({
+            id: 'webhook',
+            type: 'text',
+            name: 'webhook',
+            value: device.webhook,
+            class: 'w-full'
+          })
+        </div>
+        @button({
+          type: 'submit',
+          class: 'w-full',
+        })
+          Save Changes
+        @end
+      @end
+
+    @end
+  @end
+
+  @dialog({
+    id: 'token-modal',
+    class: '!max-w-md'
+  })
+    @dialog.body({
+      class: 'p-5'
+    })
+      <div class="mb-5">
+      <div class="bg-cat-200 dark:bg-cat-750 p-3 rounded-lg mb-3">
+        <div class="break-words text-sm select-all" data-token>
+          {{ token }}
+        </div>
+      </div>
+      @button({
+        type: 'button',
+        class: 'w-full',
+        onclick: 'resetToken(this)',
+      })
+        <svg class="size-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,512,512"><path d="M472 224c13.3 0 24-10.7 24-24l0-144c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 80.1-20-23.5C387 63.4 325.1 32 256 32C132.3 32 32 132.3 32 256s100.3 224 224 224c50.4 0 97-16.7 134.4-44.8c10.6-8 12.7-23 4.8-33.6s-23-12.7-33.6-4.8C332.2 418.9 295.7 432 256 432c-97.2 0-176-78.8-176-176s78.8-176 176-176c54.3 0 102.9 24.6 135.2 63.4l.1 .2s0 0 0 0L418.9 176 328 176c-13.3 0-24 10.7-24 24s10.7 24 24 24l144 0z" fill="currentColor" style="opacity: 1;"></path></svg>
+        Reset Token
+      @end
+    @end
+  @end
+
+@end
+
+@pushTo('body')
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+  <script>
+    const userId = '{{ auth.use('web').user?.id }}';
+    const wsToken = '{{ session.get('wsToken') }}';
+    const maxAttempts = 10;
+    let attempts = 0;
+    let intervalTime;
+
+    // detail device
+    const deviceId = '{{ device.id }}'
+
+    // ---- start socket ----
+
+    const socket = io('/wa', {
+      auth: {
+        userId,
+        wsToken
+      }
+    });
+
+    socket.on('connect', (data) => {
+      console.log('[Web Socket] Connected.');
+      wsBadge('connected');
+      attempts = maxAttempts;
+    });
+
+    socket.on('disconnect', () => {
+      console.log('[Web Socket] Disconnected.');
+      wsBadge('disconnected');
+      toast.error({ title: 'Web Socket', message: 'Disconnected' });
+    })
+
+    socket.on('connect_error', (error) => {
+      if (error.type === 'TransportError') {
+        if (attempts > maxAttempts) {
+          socket.disconnect();
+        }
+        attempts++;
+      } else {
+        console.log('[Web Socket] Error:', error.message);
+        document.addEventListener('DOMContentLoaded', () => {
+          toast.error({ title: 'Web Socket', message: error.message });
+        })
+      }
+    });
+
+    // ---- end socket ----
+
+    socket.emit('device:init', {
+      deviceId
+    }, (error, response) => {
+      if (error) {
+        toast.error({ title: 'Web Socket', message: error.message });
+        return;
+      }
+
+      if (response.data.device.id != deviceId) return
+
+      if (response.data.session.status == 'disconnected') {
+        renderStatus('Disconnected');
+        renderButtons(['pairing-code', 'qr-code']);
+      } else if (response.data.session.status == 'connected') {
+        renderStatus('Connected');
+        renderButtons(['logout', 'stop-session']);
+      } else if (response.data.session.status == 'stopped') {
+        renderStatus('Stopped.');
+        renderButtons(['start-session']);
+      } else {
+        renderStatus('...');
+        renderButtons(['force-logout']);
+      }
+      //console.log(response);
+    })
+
+    socket.on('device:status', (data) => {
+      if (data.id.split('-')[0] != deviceId) return
+      resetDisplay()
+      if (data.type == 'connection:qr') {
+        renderButtons(['force-logout']);
+        renderQr(data.data.qr, data.data.timeout)
+      }
+      if (data.type == 'connection:pairing') {
+        document.querySelector('[data-button=copy-code]').setAttribute('data-clipboard-text', data.data.code)
+        renderPairingCode(data.data.code, data.data.timeout)
+        renderButtons(['copy-code', 'force-logout']);
+      }
+      if (data.type == 'connection:connecting') {
+        renderButtons(['force-logout']);
+        renderStatus('Connecting...')
+      }
+      if (data.type == 'connection:reconnecting') {
+        renderButtons(['force-logout']);
+        renderStatus('Reconnecting...')
+      }
+      if (data.type == 'connection:timeout') {
+        renderButtons(['pairing-code', 'qr-code']);
+        renderStatus('Connection timeout.')
+      }
+      if (data.type == 'connection:logout') {
+        renderButtons(['pairing-code', 'qr-code']);
+        renderStatus('Session destroyed.')
+      }
+      if (data.type == 'connection:stopped') {
+        renderButtons(['start-session']);
+        renderStatus('Session stopped.')
+      }
+      if (data.type == 'connection:max_reconnect_reached') {
+        renderButtons(['pairing-code', 'qr-code']);
+        renderStatus('Session stopped.')
+      }
+      if (data.type == 'connection:open') {
+        renderButtons(['logout', 'stop-session']);
+        renderStatus('Connected.')
+      }
+      renderLog(new Date().toLocaleString(), data.message);
+      // console.log(data);
+    })
+
+    // ---- start func ws ----
+
+    function renderLog(title, message) {
+      const maxLogs = 5;
+      const wrapperLog = document.querySelector('[data-log]');
+
+      if (!wrapperLog) {
+        return;
+      }
+
+      const newLogElement = document.createElement('div');
+      newLogElement.innerHTML = `<span class="text-xs font-medium">${title}</span> : <span class="text-xs text-cat-500">${message}</span>`;
+
+      wrapperLog.appendChild(newLogElement);
+
+      const currentLogs = wrapperLog.children;
+      if (currentLogs.length > maxLogs) {
+        wrapperLog.removeChild(currentLogs[0]);
+      }
+    }
+
+    function renderStatus(status = null) {
+      const wrapperStaus = document.querySelector('[data-status]')
+      wrapperStaus.style.display = status ? 'block' : 'none'
+      wrapperStaus.textContent = status
+    }
+
+    function renderPairingCode(code = null, ms = 0) {
+      const wrapperCode = document.querySelector('[data-preview-pairing-code]')
+      const timerElement = wrapperCode.querySelector('[data-timer]')
+      wrapperCode.style.display = code ? 'block' : 'none'
+      const alpineData = window.Alpine.$data(wrapperCode);
+      alpineData.pairingCode = code || '';
+      renderTimer(timerElement, ms)
+    }
+
+    function renderQr(qr = null, ms = 0) {
+      const wrapperQr = document.querySelector('[data-preview-qr-code]')
+      const timerElement = wrapperQr.querySelector('[data-timer]')
+      wrapperQr.style.display = qr ? 'block' : 'none'
+      wrapperQr.querySelector('img').src = qr || ''
+      renderTimer(timerElement, ms)
+    }
+
+    function renderTimer(timerElement, seconds = 0) {
+      if (!timerElement) return;
+
+      if (typeof intervalTime !== 'undefined') {
+        clearInterval(intervalTime);
+      }
+
+      if (seconds <= 0) {
+        timerElement.textContent = "--:--";
+        return;
+      }
+
+      let timeRemaining = seconds;
+
+      const updateText = (time) => {
+        const min = Math.floor(time / 60);
+        const sec = time % 60;
+        timerElement.textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+      };
+
+      updateText(timeRemaining);
+
+      intervalTime = setInterval(() => {
+        timeRemaining -= 1;
+
+        if (timeRemaining <= 0) {
+          clearInterval(intervalTime);
+          timerElement.textContent = "--:--";
+          return;
+        }
+
+        updateText(timeRemaining);
+      }, 1000);
+    }
+
+    function renderButtons(buttons = []) {
+      const wrapperButtons = document.querySelector('[data-buttons]')
+      document.querySelectorAll('[data-button]').forEach(el => el.style.display = 'none');
+
+      buttons.forEach(button => {
+        document.querySelector('[data-button="' + button + '"]').style.display = 'inline-flex';
+      })
+    }
+
+    function resetDisplay() {
+      renderQr()
+      renderPairingCode()
+      renderButtons([])
+      renderStatus()
+    }
+
+    function deviceRemove() {
+      zalert({
+        title: 'Delete',
+        text: 'Are you sure you want to delete this device?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      }).then(async (res) => {
+        if (res?.confirmed) {
+          const toastr = toast.loading({ title: 'Deleting device' });
+          const response = await fetch('{{ route('device.destroy', [ device.id ]) }}', {
+            method: 'DELETE',
+            headers: {
+              'x-csrf-token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+
+          const contentType = response.headers.get('content-type') || '';
+          const isJson = contentType.includes('application/json');
+          const data = isJson ? await response.json() : {};
+
+          if (response.ok) {
+            deviceLogout()
+            toastr.success(data.message || 'Device deleted successfully.')
+            setTimeout(() => {
+              window.location.href = '{{ route('device') }}';
+            }, 1000);
+          } else {
+            toastr.error(data.message || 'Failed to delete device.')
+          }
+        }
+      })
+    }
+
+    function deviceLogout() {
+      socket.emit('device:logout')
+    }
+
+    function deviceStop() {
+      socket.emit('device:stop')
+    }
+
+    function deviceStart({ usePairingCode }) {
+      socket.emit('device:start', {
+        usePairingCode
+      })
+    }
+
+    function wsBadge(status) {
+      const badges = document.querySelector('[data-ws-badges]');
+      badges.querySelectorAll('[data-ws-badge]').forEach(el => el.style.display = 'none');
+      badges.querySelector('[data-ws-badge="' + status + '"]').style.display = 'inline-flex';
+    }
+
+    function copyCode() {
+      const code = document.querySelector('[data-button=copy-code]').getAttribute('data-clipboard-text')
+      navigator.clipboard.writeText(code).then(() => {
+        toast.success('Code copied to clipboard')
+      })
+    }
+
+    function resetToken(el) {
+      el.disabled = true
+      fetch('{{ route('device.resetToken', [ device.id ]) }}', {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      }).then(async (res) => {
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.message)
+        document.querySelector('[data-token]').textContent = data.data.token
+        toast.success(data.message)
+      }).catch(err => {
+        toast.error(err.message)
+      }).finally(() => {
+        setTimeout(() => {
+          el.disabled = false
+        }, 1000)
+      })
+    }
+    // ---- end func ws ----
+  </script>
+@end

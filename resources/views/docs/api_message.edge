@@ -1,0 +1,63 @@
+@layouts.dash.app({
+  title: 'WEBHOOK'
+})
+
+  <div class="lazy-container-sm">
+    <section class="flex flex-row flex-wrap justify-between mb-10 gap-5">
+      <div>
+        <div class="text-2xl font-bold">
+          API Send Message
+        </div>
+        <div class="text-sm text-cat-600 dark:text-cat-400 max-w-xl">
+          Allows third party applications to send messages via API
+        </div>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-10">
+      <div>
+        <div class="font-semibold mb-3"># API Documentation (Postman)</div>
+        <div class="text-sm">Complete REST API reference for all messaging capabilities, including sending text, media, documents, and interactive requests. Start testing instantly.</div>
+        <a class="text-accent-700 dark:text-accent-500 underline" href="https://documenter.getpostman.com/view/22300321/2sB3QQJTGk">Documenter Postman</a>
+      </div>
+
+      <div>
+        <div class="font-semibold mb-3"># Example Send Text With NodeJS</div>
+        <div class="text-sm mb-3">Endpoint API sendMessage: <span class="select-all underline">{{ `${request.protocol()}://${request.host()}/api/message` }}</span></div>
+        <pre class="text-[0.9rem] p-0"><code class="language-js">async function sendMessage(data) {
+  const url = &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot;;
+
+  const response = await fetch(url, {
+    method: &quot;POST&quot;,
+    headers: {
+      &quot;Content-Type&quot;: &quot;application/json&quot;,
+    },
+    body: JSON.stringify(data),
+  });
+  console.log(await response.json());
+}
+
+sendMessage({
+  token: 'TOKEN',
+  to: 'RECIPIENT NUMBER',
+  message: &quot;Hai&quot;,
+})</code></pre>
+      </div>
+    </section>
+  </div>
+
+
+@end
+
+@pushTo('head')
+  <link rel="stylesheet" href="/lazy/vendor/highlight/lazy.css">
+@end
+
+@pushTo('body')
+  <script src="/lazy/vendor/highlight/highlight.min.js"></script>
+  <script src="/lazy/vendor/highlight/lazy.js"></script>
+  <script>
+      hljs.addPlugin(new HljsLazyPlugin());
+      hljs.highlightAll();
+  </script>
+@end

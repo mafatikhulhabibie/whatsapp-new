@@ -1,0 +1,88 @@
+@let(props = {
+  id: $props.get('id'),
+  isOpen: $props.get('isOpen') || false,
+  placement: $props.get('placement') || 'right',
+  size: $props.get('size') || '350px',
+  backdropClass: $props.get('backdropClass') || '',
+  scrollbar: $props.get('scrollbar') || false,
+  class: $props.get('class') || '',
+})
+
+@let(transitionClasses = {
+  right: {
+    enter: 'translate-x-full',
+    enterTo: 'translate-x-0',
+    leave: 'translate-x-0',
+    leaveTo: 'translate-x-full',
+  },
+  left: {
+    enter: '-translate-x-full',
+    enterTo: 'translate-x-0',
+    leave: 'translate-x-0',
+    leaveTo: '-translate-x-full',
+  },
+  top: {
+    enter: '-translate-y-full',
+    enterTo: 'translate-y-0',
+    leave: 'translate-y-0',
+    leaveTo: '-translate-y-full',
+  },
+  bottom: {
+    enter: 'translate-y-full',
+    enterTo: 'translate-y-0',
+    leave: 'translate-y-0',
+    leaveTo: 'translate-y-full',
+  }
+})
+
+@let(placements = {
+  right: 'top-0 right-0 h-full',
+  left: 'top-0 left-0 h-full',
+  top: 'top-0 left-0 w-full',
+  bottom: 'bottom-0 left-0 w-full',
+})
+
+<div
+  x-data="$store.sheet.create({
+    id: '{{ props.id }}',
+    isOpen: {{ props.isOpen }},
+    noscroll: {{ !props.scrollbar }}
+  })"
+  id="{{ props.id }}"
+  x-cloak
+  x-show="$store.sheet.isOpen('{{ props.id }}')"
+  x-on:keydown.window.escape="$store.sheet.isOpen('{{ props.id }}') && $store.sheet.close('{{ props.id }}')"
+  class="lazy-sheet-wrapper fixed inset-0 z-[61]"
+  style="display: none;"
+>
+  <div
+    class="{{ 'fixed inset-0 bg-black/50' + props.backdropClass }}"
+    x-on:click="$store.sheet.close('{{ props.id }}')"
+    x-show="$store.sheet.isOpen('{{ props.id }}')"
+    x-transition.opacity.duration.600ms
+  ></div>
+
+  <div
+    x-show="$store.sheet.isOpen('{{ props.id }}')"
+    x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
+    x-transition:enter-start="{{ transitionClasses[props.placement]['enter'] }}"
+    x-transition:enter-end="{{ transitionClasses[props.placement]['enterTo'] }}"
+    x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
+    x-transition:leave-start="{{ transitionClasses[props.placement]['leave'] }}"
+    x-transition:leave-end="{{ transitionClasses[props.placement]['leaveTo'] }}"
+    class="{{
+      html.classNames([
+        'absolute max-w-full transform',
+        'bg-white/90 dark:bg-cat-800/95 backdrop-blur',
+        'flex flex-col overflow-hidden',
+        props.class,
+        placements[props.placement],
+      ])
+    }}"
+    style="{{ ['left', 'right'].includes(props.placement) ? "width: " + props.size : "height: " + props.size }}"
+    role="dialog"
+    data-dialog-id="{{ props.id }}"
+  >
+    {{{ await $slots.main() }}}
+  </div>
+</div>

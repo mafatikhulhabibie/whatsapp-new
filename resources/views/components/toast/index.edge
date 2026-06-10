@@ -1,0 +1,44 @@
+@let(props = {
+  placement: $props.get('placement') || 'top-right',
+  max: $props.get('max') || 4,
+  duration: $props.get('duration') || 3000
+})
+
+@let(classPlacement = {
+  'top-right': 'sm:right-4 sm:-translate-x-0 top-4 right-1/2 translate-x-1/2',
+  'top-left': 'sm:left-4 sm:-translate-x-0 top-4 left-1/2 -translate-x-1/2',
+  'top-center': 'left-1/2 -translate-x-1/2 top-5',
+  'bottom-right': 'sm:right-4 sm:-translate-x-0 bottom-4 right-1/2 translate-x-1/2',
+  'bottom-left': 'sm:left-4 sm:-translate-x-0 bottom-4 left-1/2 -translate-x-1/2',
+  'bottom-center': 'left-1/2 -translate-x-1/2 bottom-5',
+})
+
+<div
+  {{
+    $props
+      .merge({
+        class: [
+          'fixed w-full z-[99] max-w-[95%] sm:max-w-2xs',
+          classPlacement[props.placement]
+        ]
+      })
+      .except(['placement', 'max', 'duration'])
+      .toAttrs()
+  }}
+  data-lazy-toast='{ "placement": "{{ props.placement }}", "max": "{{ props.max }}", "duration": "{{ props.duration }}" }'
+  aria-label="LazyToast Notification"
+  tabindex="-1"
+></div>
+
+<script> window.addEventListener('toast', ({ detail }) => { detail.forEach(d => { toast(d); }); }); </script>
+@if(flashMessages && flashMessages.has('toast'))
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      toast({
+        type: '{{ flashMessages.get('toast')?.type || '' }}',
+        title: '{{ flashMessages.get('toast')?.title || '' }}',
+        message: '{{ flashMessages.get('toast')?.message || '' }}'
+      });
+    });
+  </script>
+@endif

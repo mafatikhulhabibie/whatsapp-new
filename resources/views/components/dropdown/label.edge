@@ -1,0 +1,7 @@
+@let(props = {
+  inset: $props.get('inset') || false,
+})
+
+<li {{ $props.merge({ class: [ 'px-2 py-1.5 text-sm font-semibold', { 'pl-8': props.inset } ] }).except(['inset']).toAttrs() }}>
+  {{{ await $slots.main() }}}
+</li>

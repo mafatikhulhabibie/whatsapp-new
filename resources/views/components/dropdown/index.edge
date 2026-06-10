@@ -1,0 +1,3 @@
+<div x-data="{ menuOpen: false }" {{ $props.merge({ class: ['inline-block'] }).toAttrs() }} x-dropdown-menu x-model="menuOpen">
+  {{{ await $slots.main() }}}
+</div>

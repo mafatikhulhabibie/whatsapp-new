@@ -1,0 +1,79 @@
+@layouts.dash.app({
+  title: 'WEBHOOK'
+})
+
+  <div class="lazy-container-sm">
+    <section class="flex flex-row flex-wrap justify-between mb-5 gap-5">
+      <div>
+        <div class="text-2xl font-bold">
+          Webhook
+        </div>
+        <div class="text-sm text-cat-600 dark:text-cat-400 max-w-xl">
+          A webhook is a mechanism that allows one application (source) to automatically send data to another application (recipient) immediately after a message upsert event.
+        </div>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-10">
+      <div>
+        <div class="font-semibold mb-3"># n8n</div>
+        <iframe class="aspect-[16/9] rounded-lg" src="https://www.youtube.com/embed/pgao0UExTs4?si=lfMlwQZmUx0dRkQ0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div>
+        <div class="font-semibold mb-3"># Example Webhook NodeJS</div>
+        <div class="text-sm mb-3">Endpoint: <span class="underline select-all">http://localhost:3335/webhook</span></div>
+        <pre class="text-[0.9rem] p-0"><code class="language-js">const express = require(&quot;express&quot;);
+const app = express();
+app.use(express.json({ limit: &#39;50mb&#39; }));
+app.use(express.urlencoded({ limit: &#39;50mb&#39;, extended: true }));
+
+const port = 3335;
+
+async function sendMessage(data) {
+  const url = &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot;;
+
+  const response = await fetch(url, {
+    method: &quot;POST&quot;,
+    headers: {
+      &quot;Content-Type&quot;: &quot;application/json&quot;,
+    },
+    body: JSON.stringify(data),
+  });
+  console.log(await response.json());
+}
+
+app.post(&quot;/webhook&quot;, function (req, res) {
+  const body = req.body;
+  if (body.msg.rawText == &quot;ping&quot;) {
+    sendMessage({
+        token: body.token,
+        to: body.chat,
+        message: &quot;pong&quot;,
+    });
+  }
+  res.end();
+});
+
+app.listen(port, function (err) {
+  if (err) console.log(err);
+  console.log(&quot;Server listening on PORT&quot;, port);
+});
+</code></pre>
+      </div>
+    </section>
+  </div>
+
+@end
+
+@pushTo('head')
+  <link rel="stylesheet" href="/lazy/vendor/highlight/lazy.css">
+@end
+
+@pushTo('body')
+  <script src="/lazy/vendor/highlight/highlight.min.js"></script>
+  <script src="/lazy/vendor/highlight/lazy.js"></script>
+  <script>
+      hljs.addPlugin(new HljsLazyPlugin());
+      hljs.highlightAll();
+  </script>
+@end

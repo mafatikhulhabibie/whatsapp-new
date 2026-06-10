@@ -1,0 +1,19 @@
+@layouts.simple.app({
+  title: '404'
+})
+  <div class="absolute inset-0 flex items-center justify-center text-[15rem] sm:text-[20rem] md:text-[30rem] lg:text-[35rem] font-bold opacity-3 overflow-hidden">
+    VERSION
+  </div>
+
+  <div class="min-h-svh flex items-center justify-center flex-col p-5 relative z-10">
+    <div class="mx-auto max-w-md">
+      <div class="font-bold text-2xl mb-5">
+        UPDATE REQUIRED
+      </div>
+      <div class="text-cat-600 dark:text-cat-400 text-sm">New version of WAPI is available. Current version: {{ currentVersion }}. New version: <a target="_blank" class="underline font-medium" href="https://velixs.com/item/wa-api-otp-webhook">{{ newVersion }}</a></div>
+      @button({ class: 'mt-5', href: 'https://velixs.com/item/wa-api-otp-webhook', target: '_blank' })
+        Update
+      @end
+    </div>
+  </div>
+@end

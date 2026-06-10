@@ -1,0 +1,3 @@
+<div {{ $props.merge({ class: [ 'flex-grow h-full overflow-y-auto' ] }).toAttrs() }}>
+  {{{ await $slots.main() }}}
+</div>

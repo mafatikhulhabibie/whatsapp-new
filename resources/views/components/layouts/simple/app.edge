@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html
+    lang="en"
+    theme-mode="light"
+    theme-accent="indigo"
+    theme-aside="show"
+    theme-font="inter"
+    class="lazy"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ title || "MAIN" }} - WAPI</title>
+    <meta name="description" content="WAPI - WhatsApp API 2.0.0">
+    <script>
+      window.localStorageKey = 'lazy-settings';
+      window.eventKey = 'lazy-appearance-change';
+      window.defaultMode = 'dark';
+    </script>
+    <script src="/lazy/theme.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    @stack('head')
+</head>
+<body class="lazy-body">
+  {{{ await $slots.main() }}}
+  @stack('body')
+  @!toast({
+    placement: 'top-right',
+    max: 4
+  })
+</body>
+</html>

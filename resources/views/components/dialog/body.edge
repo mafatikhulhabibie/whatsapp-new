@@ -1,0 +1,9 @@
+<div
+  {{
+    $props.toAttrs()
+  }}
+  x-trap="isOpen()"
+  :class="{'h-full pb-11 overflow-y-auto' : isFullscreen()}"
+>
+  {{{ await $slots.main() }}}
+</div>

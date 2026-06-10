@@ -1,0 +1,100 @@
+@layouts.dash.app({
+  title: 'USER'
+})
+
+  <div class="lazy-container-sm">
+    <section class="flex flex-row flex-wrap justify-between mb-10 gap-5">
+      <div>
+        <div class="text-2xl font-bold">
+          User Settings
+        </div>
+        <div class="text-sm text-cat-600 dark:text-cat-400 max-w-xl">
+          Update account settings
+        </div>
+      </div>
+    </section>
+
+    <section>
+      @card({
+        class: 'p-5'
+      })
+
+        @form({
+          id: 'form-user-update',
+          method: 'POST',
+          action: route('users.update', [ user.id ]),
+        })
+          {{ (typeof csrfField === 'function') ? csrfField() : '' }}
+
+          <div class="mb-3">
+            @!label({
+              for: 'name',
+              label: 'Full name'
+            })
+            @!input({
+              name: 'name',
+              value: user.name,
+              id: 'name',
+              required: true,
+              placeholder: 'Full name'
+            })
+          </div>
+          <div class="flex gap-3 flex-col md:flex-row w-full">
+            <div class="mb-3 w-full">
+              @!label({
+                for: 'username',
+                label: 'Username'
+              })
+
+              @!input({
+                name: 'username',
+                value: user.username,
+                id: 'username',
+                required: true,
+                placeholder: 'Username',
+                oninput: "this.value = this.value.toLowerCase().replace(/ /g, '').replace(/[^a-z0-9_-]/g, '');"
+              })
+            </div>
+            <div class="mb-3 w-full">
+              @!label({
+                for: 'password',
+                label: 'Password'
+              })
+
+              @!input({
+                name: 'password',
+                id: 'password',
+                placeholder: 'Password',
+                class: 'mb-1',
+              })
+              <div class="text-xs text-cat-600 dark:text-cat-400">Leave blank if you don't want to change your password</div>
+            </div>
+          </div>
+          <div class="text-end">
+            @button({
+              type: 'submit'
+            })
+              Save changes
+            @end
+          </div>
+
+        @end
+
+      @end
+    </section>
+  </div>
+
+@end
+
+@pushTo('body')
+  <script>
+    window.addEventListener('form', ({ detail }) => {
+      if (detail.id != 'form-user-update') return
+
+      if (detail?.ok) {
+        // reset password
+        detail.element.target.querySelector('#password').value = ''
+      }
+    })
+  </script>
+@end

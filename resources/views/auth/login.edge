@@ -1,0 +1,75 @@
+@layouts.simple.app({
+  title: 'LOGIN'
+})
+
+  <div class="min-h-full flex flex-auto flex-col">
+    <main class="flex flex-auto flex-col md:flex-row">
+      <div class="hidden md:flex flex-col gap-10 items-center justify-center max-w-md bg-cat-50 dark:bg-cat-800/20 w-full min-h-svh lazy-gradient">
+        <div class="flex flex-col gap-3 items-center">
+          <div class="font-bold text-2xl">WAPI - LOGIN</div>
+          <div class="text-sm text-cat-600 dark:text-cat-400">More effectively with optimized workflows.</div>
+        </div>
+        <div>
+          <img height="400" width="400" src="/lazy/image/illustration-dashboard.webp" alt="" loading="lazy">
+        </div>
+      </div>
+      <div class="flex items-center justify-center w-full min-h-svh px-5">
+        <div class="max-w-sm w-full">
+          <div class="mb-5">
+              <div class="font-bold text-xl mb-3">Welcome Back!</div>
+              <div class="text-sm text-cat-600 dark:text-cat-400">Use your username and password to log in.</div>
+          </div>
+          @if(demo)
+            <div class="mb-5 rounded-xl p-3 bg-accent-100 dark:bg-accent-500/20 text-accent-600 dark:text-accent-400 text-sm flex items-center gap-3">
+              <svg class="size-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,512,512"><path d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zm192-8c0-13.3 10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l24 0 0-64-24 0c-13.3 0-24-10.7-24-24zm96-88a32 32 0 1 1 -64 0 32 32 0 1 1 64 0z" fill="currentColor" style="opacity: 0.4;"></path><path d="M256 128a32 32 0 1 1 0 64 32 32 0 1 1 0-64zM192 248c0-13.3 10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l24 0 0-64-24 0c-13.3 0-24-10.7-24-24z" fill="currentColor" style="opacity: 1;"></path></svg>
+              <span>Use <span class="font-semibold text-accent-700 dark:text-accent-300">admin</span> with password <span class="font-semibold text-accent-700 dark:text-accent-300">12345678</span></span>
+            </div>
+          @end
+          @form({
+            id: 'form-login',
+            method: 'POST',
+            action: route('login.post'),
+            class: 'w-full flex flex-col gap-5'
+          })
+            {{ (typeof csrfField === 'function') ? csrfField() : '' }}
+
+            <div>
+              @!label({ for: 'username', label: 'Username' })
+              @!input({
+                id: 'username',
+                type: 'text',
+                name: 'username'
+              })
+            </div>
+
+            <div>
+              @!label({ for: 'password', label: 'Password' })
+              @!input({
+                id: 'password',
+                type: 'password',
+                name: 'password'
+              })
+            </div>
+
+            @button({ type: 'submit', class: 'w-full py-5' })
+              Login
+            @end
+          @end
+        </div>
+      </div>
+    </main>
+  </div>
+
+@end
+
+@pushTo('body')
+  <script>
+    window.addEventListener("form", e => {
+      if (e.detail.id === "form-login") {
+        if (e.detail?.ok) {
+          window.location.href = "{{ route('device') }}";
+        }
+      }
+    })
+  </script>
+@end
