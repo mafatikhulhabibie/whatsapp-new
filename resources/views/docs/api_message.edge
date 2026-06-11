@@ -2,8 +2,6 @@
   title: 'Dokumentasi API'
 })
 
-  @let(baseUrl = `${request.protocol()}://${request.host()}`)
-
   <div class="max-w-6xl mx-auto px-4 pb-16">
     {{-- Header --}}
     <section class="mb-8 pt-2">
@@ -152,7 +150,7 @@ function waDeviceRequest(string $endpoint, array $payload): array
             id: 'device-start',
             title: 'Mulai Sesi QR Code',
             method: 'POST',
-            url: `${baseUrl}/api/device/start`,
+            url: baseUrl + '/api/device/start',
             description: 'Memulai sesi koneksi. Setelah ini, polling <code class="text-xs">/status</code> untuk mendapatkan QR code.'
           })
             @!docs.param_table({})
@@ -171,7 +169,7 @@ $result = waDeviceRequest('start', [
             id: 'device-status',
             title: 'Polling Status & QR Code',
             method: 'POST',
-            url: `${baseUrl}/api/device/status`,
+            url: baseUrl + '/api/device/status',
             description: 'Poll setiap <strong>2–3 detik</strong>. Field <code class="text-xs">connection.qr</code> berisi QR dalam format data URL (base64). Status <code class="text-xs">connected</code> = berhasil scan.'
           })
             @!docs.param_table({})
@@ -197,7 +195,7 @@ $data   = $result['body']['data'] ?? [];
             id: 'device-pairing',
             title: 'Pairing Code (Alternatif QR)',
             method: 'POST',
-            url: `${baseUrl}/api/device/start`,
+            url: baseUrl + '/api/device/start',
             description: 'Gunakan pairing code jika tidak ingin scan QR. Masukkan kode di WhatsApp → Linked Devices.'
           })
             @!docs.param_table({})
@@ -221,7 +219,7 @@ $code   = $status['body']['data']['connection']['pairingCode'] ?? null;</code></
             id: 'device-stop',
             title: 'Stop & Logout',
             method: 'POST',
-            url: `${baseUrl}/api/device/stop | /logout`,
+            url: baseUrl + '/api/device/stop | /logout',
             description: '<strong>stop</strong> = hentikan sesi tanpa hapus auth. <strong>logout</strong> = hapus sesi &amp; auth sepenuhnya.'
           })
             <div>
@@ -249,7 +247,7 @@ waDeviceRequest('logout', ['token' =&gt; 'TOKEN_DEVICE']);</code></pre>
             <p class="text-xs text-cat-500 mt-3">Endpoint: <code class="select-all">{{ baseUrl }}/api/message</code> — Method: GET atau POST</p>
           @end
 
-          @!docs.endpoint({ id: 'msg-text', title: 'Kirim Teks', method: 'POST', url: `${baseUrl}/api/message` })
+          @!docs.endpoint({ id: 'msg-text', title: 'Kirim Teks', method: 'POST', url: baseUrl + '/api/message' })
             @!docs.param_table({})
               @!docs.param_row({ name: 'message', type: 'string', required: true, desc: 'Isi pesan teks' })
             @end
@@ -261,7 +259,7 @@ $result = sendWaMessage([
 ]);</code></pre>
           @end
 
-          @!docs.endpoint({ id: 'msg-image', title: 'Kirim Gambar', method: 'POST', url: `${baseUrl}/api/message` })
+          @!docs.endpoint({ id: 'msg-image', title: 'Kirim Gambar', method: 'POST', url: baseUrl + '/api/message' })
             @!docs.param_table({})
               @!docs.param_row({ name: 'image', type: 'string (URL)', required: true, desc: 'URL gambar publik' })
               @!docs.param_row({ name: 'caption', type: 'string', required: false, desc: 'Caption gambar' })
@@ -275,7 +273,7 @@ $result = sendWaMessage([
 ]);</code></pre>
           @end
 
-          @!docs.endpoint({ id: 'msg-document', title: 'Kirim Dokumen', method: 'POST', url: `${baseUrl}/api/message` })
+          @!docs.endpoint({ id: 'msg-document', title: 'Kirim Dokumen', method: 'POST', url: baseUrl + '/api/message' })
             @!docs.param_table({})
               @!docs.param_row({ name: 'document', type: 'string (URL)', required: true, desc: 'URL file dokumen' })
               @!docs.param_row({ name: 'filename', type: 'string', required: false, desc: 'Nama file tampilan' })
@@ -289,7 +287,7 @@ $result = sendWaMessage([
 ]);</code></pre>
           @end
 
-          @!docs.endpoint({ id: 'msg-video', title: 'Kirim Video', method: 'POST', url: `${baseUrl}/api/message` })
+          @!docs.endpoint({ id: 'msg-video', title: 'Kirim Video', method: 'POST', url: baseUrl + '/api/message' })
             @!docs.param_table({})
               @!docs.param_row({ name: 'video', type: 'string (URL)', required: true, desc: 'URL video publik' })
               @!docs.param_row({ name: 'caption', type: 'string', required: false, desc: 'Caption video' })
@@ -303,7 +301,7 @@ $result = sendWaMessage([
 ]);</code></pre>
           @end
 
-          @!docs.endpoint({ id: 'msg-location', title: 'Kirim Lokasi', method: 'POST', url: `${baseUrl}/api/message` })
+          @!docs.endpoint({ id: 'msg-location', title: 'Kirim Lokasi', method: 'POST', url: baseUrl + '/api/message' })
             @!docs.param_table({})
               @!docs.param_row({ name: 'latitude', type: 'float', required: true, desc: 'Koordinat latitude' })
               @!docs.param_row({ name: 'longitude', type: 'float', required: true, desc: 'Koordinat longitude' })
@@ -329,7 +327,7 @@ $result = sendWaMessage([
             id: 'schedule-endpoint',
             title: 'Schedule Message',
             method: 'POST',
-            url: `${baseUrl}/api/message/schedule`,
+            url: baseUrl + '/api/message/schedule',
             description: 'Device harus <strong>connected</strong> saat waktu jadwal tiba. Server mengecek setiap 30 detik.'
           })
             @!docs.param_table({})
