@@ -6,7 +6,8 @@
     class="lazy-container-sm"
     x-data="sendMessageForm({
       devices: {{ JSON.stringify(devices) }},
-      apiUrl: '{{ `${request.protocol()}://${request.host()}/api/message` }}'
+      apiUrl: '{{ `${request.protocol()}://${request.host()}/api/message` }}',
+      scheduleUrl: '{{ route('message.scheduled.store') }}'
     })"
   >
     <section class="flex flex-row flex-wrap justify-between mb-5 gap-5">
@@ -15,8 +16,17 @@
           Send Message
         </div>
         <div class="text-sm text-cat-600 dark:text-cat-400">
-          Kirim pesan teks, gambar, dokumen, video, atau lokasi langsung dari panel.
+          Kirim pesan langsung atau jadwalkan untuk dikirim otomatis.
         </div>
+      </div>
+      <div>
+        @button({
+          href: route('message.scheduled'),
+          variant: 'outline',
+          size: 'sm'
+        })
+          Lihat Jadwal
+        @end
       </div>
     </section>
 
@@ -51,6 +61,36 @@
             Akan dikirim ke: <strong x-text="normalizedTo"></strong>
           </p>
         </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-5">
+        <button
+          type="button"
+          class="px-3 py-1.5 text-sm rounded-md font-medium transition-colors"
+          :class="sendMode === 'now'
+            ? 'bg-cat-900 dark:bg-white text-white dark:text-cat-900'
+            : 'bg-cat-200/60 dark:bg-cat-700/30 text-cat-700 dark:text-cat-300'"
+          x-on:click="sendMode = 'now'"
+        >Kirim Sekarang</button>
+        <button
+          type="button"
+          class="px-3 py-1.5 text-sm rounded-md font-medium transition-colors"
+          :class="sendMode === 'schedule'
+            ? 'bg-cat-900 dark:bg-white text-white dark:text-cat-900'
+            : 'bg-cat-200/60 dark:bg-cat-700/30 text-cat-700 dark:text-cat-300'"
+          x-on:click="sendMode = 'schedule'"
+        >Jadwalkan</button>
+      </div>
+
+      <div class="mb-5" x-show="sendMode === 'schedule'">
+        @!label({ for: 'scheduledAt', label: 'Waktu Kirim' })
+        @!input({
+          type: 'datetime-local',
+          id: 'scheduledAt',
+          'x-model': 'scheduledAt',
+          required: true
+        })
+        <p class="text-xs text-cat-500 mt-1.5">Device harus <strong>connected</strong> saat waktu jadwal tiba.</p>
       </div>
 
       <div class="flex flex-wrap gap-2 mb-5 border-b border-cat-300/50 dark:border-cat-700/50 pb-4">
@@ -112,14 +152,28 @@
           </div>
         </div>
 
-        <div x-show="activeTab === 'location'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            @!label({ for: 'latitude', label: 'Latitude' })
-            @!input({ type: 'number', id: 'latitude', step: 'any', placeholder: '-6.200000', 'x-model': 'fields.latitude' })
+        <div x-show="activeTab === 'location'" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              @!label({ for: 'latitude', label: 'Latitude' })
+              @!input({ type: 'number', id: 'latitude', step: 'any', placeholder: '-6.200000', 'x-model': 'fields.latitude' })
+            </div>
+            <div>
+              @!label({ for: 'longitude', label: 'Longitude' })
+              @!input({ type: 'number', id: 'longitude', step: 'any', placeholder: '106.816666', 'x-model': 'fields.longitude' })
+            </div>
           </div>
           <div>
-            @!label({ for: 'longitude', label: 'Longitude' })
-            @!input({ type: 'number', id: 'longitude', step: 'any', placeholder: '106.816666', 'x-model': 'fields.longitude' })
+            @button({
+              type: 'button',
+              variant: 'outline',
+              'x-on:click': 'getCurrentLocation()',
+              'x-bind:disabled': 'locating'
+            })
+              <svg class="size-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5" opacity="0.5"/><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5"/></svg>
+              <span x-text="locating ? 'Mengambil lokasi...' : 'Lokasi Saat Ini'"></span>
+            @end
+            <p class="text-xs text-cat-500 mt-2">Browser akan meminta izin akses GPS/lokasi perangkat Anda.</p>
           </div>
         </div>
       </div>
@@ -128,10 +182,20 @@
         @button({
           type: 'button',
           'x-on:click': 'send()',
-          'x-bind:disabled': 'loading'
+          'x-bind:disabled': 'loading',
+          'x-show': "sendMode === 'now'"
         })
           <svg class="size-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M2.01 21L23 12L2.01 3L2 10l15 2l-15 2z"/></svg>
           <span x-text="loading ? 'Mengirim...' : 'Kirim Pesan'"></span>
+        @end
+        @button({
+          type: 'button',
+          'x-on:click': 'schedule()',
+          'x-bind:disabled': 'loading',
+          'x-show': "sendMode === 'schedule'"
+        })
+          <svg class="size-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 6v6l3.75 2.25M21 12a9 9 0 1 1-18 0a9 9 0 0 1 18 0"/></svg>
+          <span x-text="loading ? 'Menyimpan...' : 'Jadwalkan Pesan'"></span>
         @end
         @button({
           type: 'button',
@@ -156,15 +220,19 @@
 
 @pushTo('body')
   <script>
-    function sendMessageForm({ devices, apiUrl }) {
+    function sendMessageForm({ devices, apiUrl, scheduleUrl }) {
       return {
         devices,
         apiUrl,
+        scheduleUrl,
+        sendMode: 'now',
+        scheduledAt: '',
         deviceId: devices[0]?.id?.toString() || '',
         to: '',
         normalizedTo: '',
         activeTab: 'text',
         loading: false,
+        locating: false,
         responseText: '',
         tabs: [
           { id: 'text', label: 'Teks' },
@@ -221,6 +289,31 @@
         normalizeTo() {
           this.normalizedTo = this.normalizePhoneNumber(this.to)
         },
+        getCurrentLocation() {
+          if (!navigator.geolocation) {
+            toast.error({ title: 'Lokasi', message: 'Browser tidak mendukung geolocation.' })
+            return
+          }
+          this.locating = true
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              this.fields.latitude = pos.coords.latitude.toFixed(6)
+              this.fields.longitude = pos.coords.longitude.toFixed(6)
+              this.locating = false
+              toast.success({ title: 'Lokasi', message: 'Koordinat lokasi saat ini berhasil diisi.' })
+            },
+            (err) => {
+              this.locating = false
+              const messages = {
+                1: 'Izin lokasi ditolak. Aktifkan permission lokasi di browser.',
+                2: 'Lokasi tidak tersedia.',
+                3: 'Timeout saat mengambil lokasi.',
+              }
+              toast.error({ title: 'Lokasi', message: messages[err.code] || err.message })
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+          )
+        },
         buildPayload() {
           const payload = {
             token: this.selectedDevice?.token,
@@ -249,13 +342,25 @@
 
           return payload
         },
-        validate() {
-          if (!this.selectedDevice?.token) {
+        validate(forSchedule = false) {
+          if (!this.selectedDevice?.token && !forSchedule) {
             toast.error({ title: 'Send Message', message: 'Pilih device yang valid.' })
             return false
           }
-          if (this.selectedDevice.status !== 'connected') {
+          if (!this.selectedDevice && forSchedule) {
+            toast.error({ title: 'Send Message', message: 'Pilih device.' })
+            return false
+          }
+          if (!forSchedule && this.selectedDevice.status !== 'connected') {
             toast.error({ title: 'Send Message', message: 'Device belum connected. Hubungkan dulu di halaman Device.' })
+            return false
+          }
+          if (forSchedule && !this.scheduledAt) {
+            toast.error({ title: 'Send Message', message: 'Waktu jadwal wajib diisi.' })
+            return false
+          }
+          if (forSchedule && new Date(this.scheduledAt) <= new Date()) {
+            toast.error({ title: 'Send Message', message: 'Waktu jadwal harus di masa depan.' })
             return false
           }
           this.normalizeTo()
@@ -289,8 +394,47 @@
 
           return true
         },
+        buildSchedulePayload() {
+          const payload = this.buildPayload()
+          delete payload.token
+          payload.deviceId = Number(this.deviceId)
+          payload.scheduledAt = new Date(this.scheduledAt).toISOString()
+          return payload
+        },
+        async schedule() {
+          if (!this.validate(true)) return
+
+          this.loading = true
+          const toastId = toast.loading({ title: 'Schedule', message: 'Menyimpan jadwal...' })
+
+          try {
+            const response = await fetch(this.scheduleUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'x-csrf-token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+              },
+              body: JSON.stringify(this.buildSchedulePayload()),
+            })
+            const data = await response.json()
+            this.responseText = JSON.stringify(data, null, 2)
+
+            if (response.ok) {
+              toast.success({ title: 'Schedule', message: data.message || 'Pesan dijadwalkan.' })
+            } else {
+              toast.error({ title: 'Schedule', message: data.message || 'Gagal menjadwalkan pesan.' })
+            }
+          } catch (error) {
+            this.responseText = error.message
+            toast.error({ title: 'Schedule', message: error.message })
+          } finally {
+            this.loading = false
+            toast.dismiss(toastId)
+          }
+        },
         async send() {
-          if (!this.validate()) return
+          if (!this.validate(false)) return
 
           this.loading = true
           const toastId = toast.loading({ title: 'Send Message', message: 'Mengirim pesan...' })

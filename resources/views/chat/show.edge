@@ -1,0 +1,261 @@
+@layouts.dash.app({
+  title: 'CHAT'
+})
+
+  <div
+    class="max-w-6xl mx-auto px-4 pb-6"
+    x-data="chatInbox({
+      deviceId: {{ device.id }},
+      deviceStatus: '{{ status }}',
+      routes: {
+        conversations: '{{ route('chat.conversations', [ device.id ]) }}',
+        messages: '{{ route('chat.messages', [ device.id ]) }}',
+        send: '{{ route('chat.send', [ device.id ]) }}',
+      }
+    })"
+  >
+    <section class="flex flex-wrap items-center justify-between gap-3 mb-4 pt-2">
+      <div>
+        <div class="text-lg font-bold">{{ device.name }}</div>
+        <div class="text-sm text-cat-600 dark:text-cat-400">{{ device.number }}</div>
+      </div>
+      <div class="flex gap-2">
+        @button({ href: route('chat.index'), variant: 'outline', size: 'sm' })
+          Ganti Device
+        @end
+        @button({ href: route('device.detail', [ device.id ]), variant: 'outline', size: 'sm' })
+          Device Settings
+        @end
+      </div>
+    </section>
+
+    @card({ class: 'overflow-hidden' })
+      <div class="grid grid-cols-1 md:grid-cols-[300px_minmax(0,1fr)] min-h-[70vh]">
+
+        {{-- Daftar percakapan --}}
+        <div class="border-b md:border-b-0 md:border-r border-cat-200 dark:border-cat-700 flex flex-col">
+          <div class="px-4 py-3 border-b border-cat-200 dark:border-cat-700 font-semibold text-sm">
+            Percakapan
+          </div>
+          <div class="overflow-y-auto max-h-[70vh] flex-1">
+            <template x-if="conversations.length === 0">
+              <div class="p-6 text-sm text-cat-500 text-center">Belum ada pesan tersimpan.</div>
+            </template>
+            <template x-for="item in conversations" :key="item.id">
+              <button
+                type="button"
+                class="w-full text-left px-4 py-3 border-b border-cat-100 dark:border-cat-800 hover:bg-cat-50 dark:hover:bg-cat-900/40 transition"
+                :class="activeChat === item.chatJid ? 'bg-accent-500/10 dark:bg-accent-400/10' : ''"
+                x-on:click="selectConversation(item)"
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="text-sm font-medium truncate" x-text="item.name || item.chatJid"></div>
+                    <div class="text-xs text-cat-500 truncate mt-0.5" x-text="item.lastMessagePreview || '-'"></div>
+                  </div>
+                  <template x-if="item.unreadCount > 0">
+                    <span class="flex-shrink-0 bg-accent-600 text-white text-[10px] font-bold rounded-full min-w-5 h-5 flex items-center justify-center px-1" x-text="item.unreadCount"></span>
+                  </template>
+                </div>
+                <div class="text-[10px] text-cat-400 mt-1" x-text="formatTime(item.lastMessageAt)"></div>
+              </button>
+            </template>
+          </div>
+        </div>
+
+        {{-- Thread pesan --}}
+        <div class="flex flex-col min-h-[70vh]">
+          <template x-if="!activeChat">
+            <div class="flex-1 flex items-center justify-center text-sm text-cat-500 p-6">
+              Pilih percakapan untuk melihat pesan.
+            </div>
+          </template>
+
+          <template x-if="activeChat">
+            <div class="flex flex-col flex-1 min-h-0">
+              <div class="px-4 py-3 border-b border-cat-200 dark:border-cat-700">
+                <div class="text-sm font-semibold" x-text="activeName"></div>
+                <div class="text-xs text-cat-500" x-text="activeChat"></div>
+              </div>
+
+              <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-cat-50/50 dark:bg-cat-900/20" id="chat-messages-box">
+                <template x-for="msg in messages" :key="msg.id">
+                  <div class="flex" :class="msg.fromMe ? 'justify-end' : 'justify-start'">
+                    <div
+                      class="max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm"
+                      :class="msg.fromMe
+                        ? 'bg-accent-600 text-white rounded-br-md'
+                        : 'bg-white dark:bg-cat-800 border border-cat-200 dark:border-cat-700 rounded-bl-md'"
+                    >
+                      <template x-if="!msg.fromMe && activeIsGroup && msg.senderName">
+                        <div class="text-[10px] font-semibold mb-1 opacity-70" x-text="msg.senderName"></div>
+                      </template>
+                      <div x-text="msg.bodyText || '[' + (msg.messageType || 'media') + ']'"></div>
+                      <div class="text-[10px] mt-1 opacity-60 text-right" x-text="formatTime(msg.messageAt)"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+
+              <div class="p-3 border-t border-cat-200 dark:border-cat-700">
+                <form class="flex gap-2" x-on:submit.prevent="sendMessage()">
+                  <input
+                    type="text"
+                    x-model="draft"
+                    placeholder="Ketik pesan..."
+                    class="flex-1 appearance-none block w-full px-3 py-2.5 text-sm rounded-md bg-white dark:bg-cat-700/10 border border-cat-300 dark:border-cat-700/50 focus:outline-none focus:ring-[1.7px] focus:ring-cat-700 dark:focus:ring-cat-200"
+                    :disabled="sending || deviceStatus !== 'connected'"
+                  />
+                  @button({
+                    type: 'submit',
+                    size: 'sm',
+                    'x-bind:disabled': "sending || !draft.trim() || deviceStatus !== 'connected'"
+                  })
+                    Kirim
+                  @end
+                </form>
+                <p class="text-xs text-cat-500 mt-2" x-show="deviceStatus !== 'connected'">
+                  Device harus <strong>connected</strong> untuk mengirim pesan.
+                </p>
+              </div>
+            </div>
+          </template>
+        </div>
+
+      </div>
+    @end
+  </div>
+
+@end
+
+@pushTo('body')
+  <script>
+    function chatInbox({ deviceId, deviceStatus, routes }) {
+      return {
+        deviceId,
+        deviceStatus,
+        routes,
+        conversations: [],
+        messages: [],
+        activeChat: null,
+        activeName: '',
+        activeIsGroup: false,
+        draft: '',
+        sending: false,
+        socket: null,
+
+        init() {
+          this.loadConversations()
+          this.initSocket()
+        },
+
+        initSocket() {
+          const userId = '{{ auth.use('web').user?.id }}'
+          const wsToken = '{{ session.get('wsToken') }}'
+
+          this.socket = io('/wa', { auth: { userId, wsToken } })
+
+          this.socket.on('connect', () => {
+            this.socket.emit('device:init', { deviceId }, () => {})
+          })
+
+          this.socket.on('chat:message', (payload) => {
+            this.handleIncomingSocket(payload)
+          })
+        },
+
+        handleIncomingSocket(payload) {
+          const idx = this.conversations.findIndex((c) => c.chatJid === payload.chatJid)
+          if (idx >= 0) {
+            this.conversations[idx] = payload.conversation
+          } else {
+            this.conversations.unshift(payload.conversation)
+          }
+          this.conversations.sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt))
+
+          if (this.activeChat === payload.chatJid) {
+            const exists = this.messages.some((m) => m.id === payload.id)
+            if (!exists) {
+              this.messages.push({
+                id: payload.id,
+                fromMe: payload.fromMe,
+                senderName: payload.senderName,
+                bodyText: payload.bodyText,
+                isMedia: payload.isMedia,
+                messageType: payload.messageType,
+                messageAt: payload.messageAt,
+              })
+              this.$nextTick(() => this.scrollToBottom())
+            }
+            if (payload.conversation) {
+              payload.conversation.unreadCount = 0
+            }
+          }
+        },
+
+        async loadConversations() {
+          const res = await fetch(this.routes.conversations, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          })
+          const json = await res.json()
+          this.conversations = json.data || []
+        },
+
+        async selectConversation(item) {
+          this.activeChat = item.chatJid
+          this.activeName = item.name || item.chatJid
+          this.activeIsGroup = item.isGroup
+          item.unreadCount = 0
+          await this.loadMessages()
+        },
+
+        async loadMessages() {
+          const url = `${this.routes.messages}?chat=${encodeURIComponent(this.activeChat)}`
+          const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          const json = await res.json()
+          this.messages = json.data || []
+          this.$nextTick(() => this.scrollToBottom())
+        },
+
+        async sendMessage() {
+          if (!this.draft.trim() || !this.activeChat) return
+          this.sending = true
+          try {
+            const res = await fetch(this.routes.send, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'x-csrf-token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+              },
+              body: JSON.stringify({ chat: this.activeChat, message: this.draft.trim() }),
+            })
+            const json = await res.json()
+            if (res.ok) {
+              this.draft = ''
+              setTimeout(() => this.loadMessages(), 1500)
+              setTimeout(() => this.loadConversations(), 1500)
+            } else {
+              toast.error({ title: 'Chat', message: json.message || 'Gagal mengirim.' })
+            }
+          } catch (e) {
+            toast.error({ title: 'Chat', message: e.message })
+          } finally {
+            this.sending = false
+          }
+        },
+
+        scrollToBottom() {
+          const box = document.getElementById('chat-messages-box')
+          if (box) box.scrollTop = box.scrollHeight
+        },
+
+        formatTime(iso) {
+          if (!iso) return ''
+          const d = new Date(iso)
+          return d.toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+        },
+      }
+    }
+  </script>
+@end

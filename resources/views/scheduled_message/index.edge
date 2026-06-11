@@ -1,0 +1,119 @@
+@layouts.dash.app({
+  title: 'PESAN TERJADWAL'
+})
+
+  <div class="lazy-container-sm">
+    <section class="flex flex-row flex-wrap justify-between mb-5 gap-5">
+      <div>
+        <div class="text-lg font-bold">
+          Pesan Terjadwal
+        </div>
+        <div class="text-sm text-cat-600 dark:text-cat-400">
+          Daftar pesan yang dijadwalkan untuk dikirim otomatis.
+        </div>
+      </div>
+      <div class="flex gap-2">
+        @button({
+          href: route('message.send'),
+          variant: 'outline'
+        })
+          Kirim / Jadwalkan
+        @end
+      </div>
+    </section>
+
+    <section>
+      @card({ class: 'overflow-hidden' })
+        @if(messages.length === 0)
+          <div class="p-8 text-center text-sm text-cat-500">
+            Belum ada pesan terjadwal.
+          </div>
+        @else
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-cat-200 dark:border-cat-700 text-left text-cat-600 dark:text-cat-400">
+                  <th class="px-5 py-3 font-medium">Jadwal</th>
+                  <th class="px-5 py-3 font-medium">Device</th>
+                  <th class="px-5 py-3 font-medium">Tujuan</th>
+                  <th class="px-5 py-3 font-medium">Tipe</th>
+                  <th class="px-5 py-3 font-medium">Isi</th>
+                  <th class="px-5 py-3 font-medium">Status</th>
+                  <th class="px-5 py-3 font-medium text-end">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                @each(item in messages)
+                  <tr class="border-b border-cat-100 dark:border-cat-800 last:border-0" data-scheduled-id="{{ item.id }}">
+                    <td class="px-5 py-3 whitespace-nowrap">{{ item.scheduledAtLabel }}</td>
+                    <td class="px-5 py-3">{{ item.deviceName }}</td>
+                    <td class="px-5 py-3">{{ item.to }}</td>
+                    <td class="px-5 py-3 capitalize">{{ item.messageType }}</td>
+                    <td class="px-5 py-3 max-w-xs truncate" title="{{ item.preview }}">{{ item.preview }}</td>
+                    <td class="px-5 py-3">
+                      @if(item.status === 'pending')
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">Pending</span>
+                      @elseif(item.status === 'sent')
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Terkirim</span>
+                      @elseif(item.status === 'failed')
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">Gagal</span>
+                      @else
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-cat-100 text-cat-700 dark:bg-cat-700 dark:text-cat-300">Dibatalkan</span>
+                      @end
+                    </td>
+                    <td class="px-5 py-3 text-end">
+                      @if(item.status === 'pending')
+                        @button({
+                          variant: 'destructive',
+                          size: 'sm',
+                          onclick: `cancelSchedule(${item.id})`
+                        })
+                          Batal
+                        @end
+                      @elseif(item.error)
+                        <span class="text-xs text-red-500" title="{{ item.error }}">Error</span>
+                      @end
+                    </td>
+                  </tr>
+                @end
+              </tbody>
+            </table>
+          </div>
+        @end
+      @end
+    </section>
+  </div>
+
+@end
+
+@pushTo('body')
+  <script>
+    async function cancelSchedule(id) {
+      zalert({
+        title: 'Batalkan Jadwal',
+        text: 'Pesan terjadwal ini tidak akan dikirim.',
+        confirmText: 'Batalkan',
+        cancelText: 'Tutup',
+      }).then(async (res) => {
+        if (!res?.confirmed) return
+
+        const toastr = toast.loading({ title: 'Membatalkan jadwal...' })
+        const response = await fetch(`{{ route('message.scheduled.destroy', [ ':id' ]) }}`.replace(':id', id), {
+          method: 'DELETE',
+          headers: {
+            'x-csrf-token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        })
+
+        const data = await response.json()
+        if (response.ok) {
+          document.querySelector(`[data-scheduled-id="${id}"]`)?.remove()
+          toastr.success(data.message || 'Jadwal dibatalkan.')
+        } else {
+          toastr.error(data.message || 'Gagal membatalkan jadwal.')
+        }
+      })
+    }
+  </script>
+@end

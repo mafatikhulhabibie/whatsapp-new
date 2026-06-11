@@ -1,139 +1,91 @@
 @layouts.dash.app({
-  title: 'WEBHOOK'
+  title: 'Dokumentasi API'
 })
 
-  <div class="lazy-container-sm">
-    <section class="flex flex-row flex-wrap justify-between mb-10 gap-5">
-      <div>
-        <div class="text-2xl font-bold">
-          API Send Message
-        </div>
-        <div class="text-sm text-cat-600 dark:text-cat-400 max-w-xl">
-          Allows third party applications to send messages via API
-        </div>
-      </div>
+  @let(baseUrl = `${request.protocol()}://${request.host()}`)
+
+  <div class="max-w-6xl mx-auto px-4 pb-16">
+    {{-- Header --}}
+    <section class="mb-8 pt-2">
+      <div class="text-2xl font-bold mb-2">Dokumentasi API</div>
+      <p class="text-sm text-cat-600 dark:text-cat-400 max-w-2xl">
+        Panduan integrasi WAPI menggunakan PHP. Ikuti urutan section di bawah: mulai dari Helper PHP,
+        lalu koneksi device (QR Code), kirim pesan, dan jadwalkan pesan.
+      </p>
     </section>
 
-    <section class="flex flex-col gap-10">
-      <div>
-        <div class="font-semibold mb-3"># API Documentation (Postman)</div>
-        <div class="text-sm">Complete REST API reference for all messaging capabilities, including sending text, media, documents, and interactive requests. Start testing instantly.</div>
-        <a class="text-accent-700 dark:text-accent-500 underline" href="https://documenter.getpostman.com/view/22300321/2sB3QQJTGk">Documenter Postman</a>
-      </div>
+    <div class="grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)] gap-8 items-start">
 
-      <div>
-        <div class="font-semibold mb-3"># Endpoint</div>
-        <div class="text-sm mb-3">
-          <span class="select-all underline">{{ `${request.protocol()}://${request.host()}/api/message` }}</span>
-          <span class="text-cat-600 dark:text-cat-400"> — Method: GET atau POST</span>
-        </div>
-        <div class="text-sm text-cat-600 dark:text-cat-400 mb-3">
-          Wajib: <code class="text-xs">token</code> (device token) dan <code class="text-xs">to</code> (nomor tujuan, contoh: 628123456789).
-          Device harus status <strong>Connected</strong>.
-        </div>
-      </div>
+      {{-- Daftar Isi --}}
+      <aside class="lg:sticky lg:top-6">
+        @card({ class: 'p-4' })
+          <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-3">Daftar Isi</div>
+          <nav class="flex flex-col gap-1 text-sm">
+            <a href="#pengenalan" class="px-2 py-1.5 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-700 dark:text-cat-300">1. Pengenalan</a>
+            <a href="#helper-php" class="px-2 py-1.5 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-700 dark:text-cat-300">2. Helper PHP</a>
+            <a href="#device-api" class="px-2 py-1.5 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-700 dark:text-cat-300 font-medium">3. Device &amp; QR Code</a>
+            <a href="#device-start" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">3.1 Mulai Sesi</a>
+            <a href="#device-status" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">3.2 Polling Status</a>
+            <a href="#device-pairing" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">3.3 Pairing Code</a>
+            <a href="#device-stop" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">3.4 Stop &amp; Logout</a>
+            <a href="#message-api" class="px-2 py-1.5 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-700 dark:text-cat-300 font-medium">4. Kirim Pesan</a>
+            <a href="#msg-text" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">4.1 Teks</a>
+            <a href="#msg-image" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">4.2 Gambar</a>
+            <a href="#msg-document" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">4.3 Dokumen</a>
+            <a href="#msg-video" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">4.4 Video</a>
+            <a href="#msg-location" class="pl-5 pr-2 py-1 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-600 dark:text-cat-400 text-xs">4.5 Lokasi</a>
+            <a href="#schedule-api" class="px-2 py-1.5 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-700 dark:text-cat-300">5. Jadwalkan Pesan</a>
+            <a href="#response-format" class="px-2 py-1.5 rounded-md hover:bg-cat-100 dark:hover:bg-cat-700/40 text-cat-700 dark:text-cat-300">6. Format Response</a>
+          </nav>
+        @end
+      </aside>
 
-      <div>
-        <div class="font-semibold mb-3"># 1. Kirim Teks</div>
-        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
-  -H &quot;Content-Type: application/json&quot; \
-  -d '{
-    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
-    &quot;to&quot;: &quot;628123456789&quot;,
-    &quot;message&quot;: &quot;Halo, ini pesan teks&quot;
-  }'</code></pre>
-        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
-sendWaMessage([
-    'token'   =&gt; 'TOKEN_DEVICE',
-    'to'      =&gt; '628123456789',
-    'message' =&gt; 'Halo, ini pesan teks',
-]);</code></pre>
-      </div>
+      {{-- Konten --}}
+      <div class="flex flex-col gap-12 min-w-0">
 
-      <div>
-        <div class="font-semibold mb-3"># 2. Kirim Gambar</div>
-        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
-  -H &quot;Content-Type: application/json&quot; \
-  -d '{
-    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
-    &quot;to&quot;: &quot;628123456789&quot;,
-    &quot;image&quot;: &quot;https://example.com/foto.jpg&quot;,
-    &quot;caption&quot;: &quot;Ini caption gambar&quot;
-  }'</code></pre>
-        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
-sendWaMessage([
-    'token'   =&gt; 'TOKEN_DEVICE',
-    'to'      =&gt; '628123456789',
-    'image'   =&gt; 'https://example.com/foto.jpg',
-    'caption' =&gt; 'Ini caption gambar',
-]);</code></pre>
-      </div>
+        {{-- 1. Pengenalan --}}
+        @!docs.section({
+          id: 'pengenalan',
+          number: '1',
+          title: 'Pengenalan',
+          description: 'Informasi dasar sebelum mulai integrasi.'
+        })
+            @card({ class: 'p-5' })
+              <div class="text-sm space-y-3 text-cat-700 dark:text-cat-300">
+                <p>Base URL API:</p>
+                <code class="block text-xs select-all bg-cat-100 dark:bg-cat-900/50 rounded-lg px-3 py-2">{{ baseUrl }}/api</code>
+                <p>Semua request menggunakan <strong>Content-Type: application/json</strong> dan method <strong>POST</strong> (kecuali disebutkan lain).</p>
+                <p>Token device didapat dari menu <strong>Device Connection</strong> setelah membuat device.</p>
+              </div>
+            @end
 
-      <div>
-        <div class="font-semibold mb-3"># 3. Kirim Dokumen</div>
-        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
-  -H &quot;Content-Type: application/json&quot; \
-  -d '{
-    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
-    &quot;to&quot;: &quot;628123456789&quot;,
-    &quot;document&quot;: &quot;https://example.com/laporan.pdf&quot;,
-    &quot;filename&quot;: &quot;Laporan Bulanan&quot;
-  }'</code></pre>
-        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
-sendWaMessage([
-    'token'    =&gt; 'TOKEN_DEVICE',
-    'to'       =&gt; '628123456789',
-    'document' =&gt; 'https://example.com/laporan.pdf',
-    'filename' =&gt; 'Laporan Bulanan',
-]);</code></pre>
-      </div>
+            @card({ class: 'p-5 mt-4' })
+              <div class="text-sm font-semibold mb-3">Alur Integrasi</div>
+              <ol class="text-sm space-y-2 text-cat-700 dark:text-cat-300 list-decimal list-inside">
+                <li>Salin <strong>Helper PHP</strong> ke project Anda</li>
+                <li>Hubungkan device via <strong>Scan QR Code</strong> (start → polling status)</li>
+                <li>Pastikan status device = <code class="text-xs">connected</code></li>
+                <li>Kirim pesan via <strong>Send Message API</strong></li>
+                <li>Opsional: jadwalkan pesan via <strong>Schedule API</strong></li>
+              </ol>
+            @end
+          @end
 
-      <div>
-        <div class="font-semibold mb-3"># 4. Kirim Video</div>
-        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
-  -H &quot;Content-Type: application/json&quot; \
-  -d '{
-    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
-    &quot;to&quot;: &quot;628123456789&quot;,
-    &quot;video&quot;: &quot;https://example.com/video.mp4&quot;,
-    &quot;caption&quot;: &quot;Ini caption video&quot;
-  }'</code></pre>
-        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
-sendWaMessage([
-    'token'   =&gt; 'TOKEN_DEVICE',
-    'to'      =&gt; '628123456789',
-    'video'   =&gt; 'https://example.com/video.mp4',
-    'caption' =&gt; 'Ini caption video',
-]);</code></pre>
-      </div>
-
-      <div>
-        <div class="font-semibold mb-3"># 5. Kirim Lokasi</div>
-        <pre class="text-[0.9rem] p-0"><code class="language-bash">curl -X POST &quot;{{ `${request.protocol()}://${request.host()}/api/message` }}&quot; \
-  -H &quot;Content-Type: application/json&quot; \
-  -d '{
-    &quot;token&quot;: &quot;TOKEN_DEVICE&quot;,
-    &quot;to&quot;: &quot;628123456789&quot;,
-    &quot;latitude&quot;: -6.200000,
-    &quot;longitude&quot;: 106.816666
-  }'</code></pre>
-        <pre class="text-[0.9rem] p-0 mt-3"><code class="language-php">&lt;?php
-sendWaMessage([
-    'token'     =&gt; 'TOKEN_DEVICE',
-    'to'        =&gt; '628123456789',
-    'latitude'  =&gt; -6.200000,
-    'longitude' =&gt; 106.816666,
-]);</code></pre>
-      </div>
-
-      <div>
-        <div class="font-semibold mb-3"># Helper PHP (reusable)</div>
-        <pre class="text-[0.9rem] p-0"><code class="language-php">&lt;?php
-function sendWaMessage(array $payload): array
+        {{-- 2. Helper PHP --}}
+        @!docs.section({
+          id: 'helper-php',
+          number: '2',
+          title: 'Helper PHP',
+          description: 'Salin file helper ini terlebih dahulu. Semua contoh di dokumentasi menggunakan fungsi-fungsi berikut.'
+        })
+          @card({ class: 'overflow-hidden' })
+            <div class="border-b border-cat-200 dark:border-cat-700 px-5 py-3 bg-cat-50/50 dark:bg-cat-900/30">
+              <div class="text-xs font-semibold uppercase tracking-wide text-cat-500">wa_helper.php</div>
+            </div>
+            <pre class="text-[0.85rem] p-5 overflow-x-auto"><code class="language-php">&lt;?php
+function waApiRequest(string $url, array $payload): array
 {
-    $api = '{{ `${request.protocol()}://${request.host()}/api/message` }}';
-
-    $ch = curl_init($api);
+    $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_POST           =&gt; true,
         CURLOPT_HTTPHEADER     =&gt; ['Content-Type: application/json'],
@@ -150,16 +102,295 @@ function sendWaMessage(array $payload): array
         'status' =&gt; $httpCode,
         'body'   =&gt; json_decode($response, true),
     ];
-}</code></pre>
-      </div>
-    </section>
-  </div>
+}
 
+/** Kirim pesan langsung */
+function sendWaMessage(array $payload): array
+{
+    return waApiRequest('{{ baseUrl }}/api/message', $payload);
+}
+
+/** Jadwalkan pesan */
+function scheduleWaMessage(array $payload): array
+{
+    return waApiRequest('{{ baseUrl }}/api/message/schedule', $payload);
+}
+
+/** Request ke endpoint device (start, status, stop, logout) */
+function waDeviceRequest(string $endpoint, array $payload): array
+{
+    return waApiRequest('{{ baseUrl }}/api/device/' . $endpoint, $payload);
+}</code></pre>
+          @end
+
+          @!docs.param_table({ title: 'Fungsi Helper' })
+            @!docs.param_row({ name: 'waApiRequest()', type: 'function', required: false, desc: 'Request HTTP POST ke API WAPI' })
+            @!docs.param_row({ name: 'sendWaMessage()', type: 'function', required: false, desc: 'Kirim pesan WhatsApp langsung' })
+            @!docs.param_row({ name: 'scheduleWaMessage()', type: 'function', required: false, desc: 'Jadwalkan pesan untuk dikirim otomatis' })
+            @!docs.param_row({ name: 'waDeviceRequest()', type: 'function', required: false, desc: 'Kelola koneksi device (QR / pairing)' })
+          @end
+        @end
+
+        {{-- 3. Device API --}}
+        @!docs.section({
+          id: 'device-api',
+          number: '3',
+          title: 'Device & Scan QR Code',
+          description: 'Hubungkan WhatsApp ke WAPI via scan QR code atau pairing code.'
+        })
+
+          @card({ class: 'p-5 mb-2' })
+            @!docs.param_table({ title: 'Daftar Endpoint Device' })
+              @!docs.param_row({ name: '/api/device/start', type: 'POST', required: false, desc: 'Mulai sesi koneksi (QR / pairing)' })
+              @!docs.param_row({ name: '/api/device/status', type: 'GET/POST', required: false, desc: 'Cek status &amp; ambil QR code' })
+              @!docs.param_row({ name: '/api/device/stop', type: 'POST', required: false, desc: 'Stop sesi tanpa hapus auth' })
+              @!docs.param_row({ name: '/api/device/logout', type: 'POST', required: false, desc: 'Logout &amp; hapus sesi' })
+            @end
+          @end
+
+          @!docs.endpoint({
+            id: 'device-start',
+            title: 'Mulai Sesi QR Code',
+            method: 'POST',
+            url: `${baseUrl}/api/device/start`,
+            description: 'Memulai sesi koneksi. Setelah ini, polling <code class="text-xs">/status</code> untuk mendapatkan QR code.'
+          })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'token', type: 'string', required: true, desc: 'Token device' })
+            @end
+            <div>
+              <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">Contoh PHP</div>
+              <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+$result = waDeviceRequest('start', [
+    'token' =&gt; 'TOKEN_DEVICE',
+]);</code></pre>
+            </div>
+          @end
+
+          @!docs.endpoint({
+            id: 'device-status',
+            title: 'Polling Status & QR Code',
+            method: 'POST',
+            url: `${baseUrl}/api/device/status`,
+            description: 'Poll setiap <strong>2–3 detik</strong>. Field <code class="text-xs">connection.qr</code> berisi QR dalam format data URL (base64). Status <code class="text-xs">connected</code> = berhasil scan.'
+          })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'token', type: 'string', required: true, desc: 'Token device' })
+            @end
+            <div>
+              <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">Contoh PHP</div>
+              <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+$result = waDeviceRequest('status', ['token' =&gt; 'TOKEN_DEVICE']);
+$data   = $result['body']['data'] ?? [];
+
+// Tampilkan QR:
+// echo '&lt;img src="' . ($data['connection']['qr'] ?? '') . '"&gt;';
+
+// Field penting:
+// $data['status']                          → connecting | connected
+// $data['connection']['qr']                → data:image/png;base64,...
+// $data['connection']['pairingCode']       → null atau kode pairing</code></pre>
+            </div>
+          @end
+
+          @!docs.endpoint({
+            id: 'device-pairing',
+            title: 'Pairing Code (Alternatif QR)',
+            method: 'POST',
+            url: `${baseUrl}/api/device/start`,
+            description: 'Gunakan pairing code jika tidak ingin scan QR. Masukkan kode di WhatsApp → Linked Devices.'
+          })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'token', type: 'string', required: true, desc: 'Token device' })
+              @!docs.param_row({ name: 'usePairingCode', type: 'boolean', required: false, desc: 'Set <code class="text-xs">true</code> untuk pairing code' })
+            @end
+            <div>
+              <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">Contoh PHP</div>
+              <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+waDeviceRequest('start', [
+    'token'          =&gt; 'TOKEN_DEVICE',
+    'usePairingCode' =&gt; true,
+]);
+
+$status = waDeviceRequest('status', ['token' =&gt; 'TOKEN_DEVICE']);
+$code   = $status['body']['data']['connection']['pairingCode'] ?? null;</code></pre>
+            </div>
+          @end
+
+          @!docs.endpoint({
+            id: 'device-stop',
+            title: 'Stop & Logout',
+            method: 'POST',
+            url: `${baseUrl}/api/device/stop | /logout`,
+            description: '<strong>stop</strong> = hentikan sesi tanpa hapus auth. <strong>logout</strong> = hapus sesi &amp; auth sepenuhnya.'
+          })
+            <div>
+              <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">Contoh PHP</div>
+              <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+waDeviceRequest('stop',   ['token' =&gt; 'TOKEN_DEVICE']);
+waDeviceRequest('logout', ['token' =&gt; 'TOKEN_DEVICE']);</code></pre>
+            </div>
+          @end
+        @end
+
+        {{-- 4. Message API --}}
+        @!docs.section({
+          id: 'message-api',
+          number: '4',
+          title: 'Kirim Pesan',
+          description: 'Kirim pesan WhatsApp langsung. Device harus status connected.'
+        })
+
+          @card({ class: 'p-5 mb-2' })
+            @!docs.param_table({ title: 'Parameter Umum (Semua Tipe Pesan)' })
+              @!docs.param_row({ name: 'token', type: 'string', required: true, desc: 'Token device' })
+              @!docs.param_row({ name: 'to', type: 'string', required: true, desc: 'Nomor tujuan, contoh: <code class="text-xs">628123456789</code>' })
+            @end
+            <p class="text-xs text-cat-500 mt-3">Endpoint: <code class="select-all">{{ baseUrl }}/api/message</code> — Method: GET atau POST</p>
+          @end
+
+          @!docs.endpoint({ id: 'msg-text', title: 'Kirim Teks', method: 'POST', url: `${baseUrl}/api/message` })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'message', type: 'string', required: true, desc: 'Isi pesan teks' })
+            @end
+            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+$result = sendWaMessage([
+    'token'   =&gt; 'TOKEN_DEVICE',
+    'to'      =&gt; '628123456789',
+    'message' =&gt; 'Halo, ini pesan teks',
+]);</code></pre>
+          @end
+
+          @!docs.endpoint({ id: 'msg-image', title: 'Kirim Gambar', method: 'POST', url: `${baseUrl}/api/message` })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'image', type: 'string (URL)', required: true, desc: 'URL gambar publik' })
+              @!docs.param_row({ name: 'caption', type: 'string', required: false, desc: 'Caption gambar' })
+            @end
+            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+$result = sendWaMessage([
+    'token'   =&gt; 'TOKEN_DEVICE',
+    'to'      =&gt; '628123456789',
+    'image'   =&gt; 'https://example.com/foto.jpg',
+    'caption' =&gt; 'Ini caption gambar',
+]);</code></pre>
+          @end
+
+          @!docs.endpoint({ id: 'msg-document', title: 'Kirim Dokumen', method: 'POST', url: `${baseUrl}/api/message` })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'document', type: 'string (URL)', required: true, desc: 'URL file dokumen' })
+              @!docs.param_row({ name: 'filename', type: 'string', required: false, desc: 'Nama file tampilan' })
+            @end
+            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+$result = sendWaMessage([
+    'token'    =&gt; 'TOKEN_DEVICE',
+    'to'       =&gt; '628123456789',
+    'document' =&gt; 'https://example.com/laporan.pdf',
+    'filename' =&gt; 'Laporan Bulanan',
+]);</code></pre>
+          @end
+
+          @!docs.endpoint({ id: 'msg-video', title: 'Kirim Video', method: 'POST', url: `${baseUrl}/api/message` })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'video', type: 'string (URL)', required: true, desc: 'URL video publik' })
+              @!docs.param_row({ name: 'caption', type: 'string', required: false, desc: 'Caption video' })
+            @end
+            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+$result = sendWaMessage([
+    'token'   =&gt; 'TOKEN_DEVICE',
+    'to'      =&gt; '628123456789',
+    'video'   =&gt; 'https://example.com/video.mp4',
+    'caption' =&gt; 'Ini caption video',
+]);</code></pre>
+          @end
+
+          @!docs.endpoint({ id: 'msg-location', title: 'Kirim Lokasi', method: 'POST', url: `${baseUrl}/api/message` })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'latitude', type: 'float', required: true, desc: 'Koordinat latitude' })
+              @!docs.param_row({ name: 'longitude', type: 'float', required: true, desc: 'Koordinat longitude' })
+            @end
+            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+$result = sendWaMessage([
+    'token'     =&gt; 'TOKEN_DEVICE',
+    'to'        =&gt; '628123456789',
+    'latitude'  =&gt; -6.200000,
+    'longitude' =&gt; 106.816666,
+]);</code></pre>
+          @end
+        @end
+
+        {{-- 5. Schedule --}}
+        @!docs.section({
+          id: 'schedule-api',
+          number: '5',
+          title: 'Jadwalkan Pesan',
+          description: 'Kirim pesan otomatis di waktu yang ditentukan. Parameter pesan sama dengan Send Message, ditambah scheduledAt.'
+        })
+          @!docs.endpoint({
+            id: 'schedule-endpoint',
+            title: 'Schedule Message',
+            method: 'POST',
+            url: `${baseUrl}/api/message/schedule`,
+            description: 'Device harus <strong>connected</strong> saat waktu jadwal tiba. Server mengecek setiap 30 detik.'
+          })
+            @!docs.param_table({})
+              @!docs.param_row({ name: 'token', type: 'string', required: true, desc: 'Token device' })
+              @!docs.param_row({ name: 'to', type: 'string', required: true, desc: 'Nomor tujuan' })
+              @!docs.param_row({ name: 'message', type: 'string', required: true, desc: 'Isi pesan (atau field tipe lain: image, video, dll)' })
+              @!docs.param_row({ name: 'scheduledAt', type: 'string (ISO 8601)', required: true, desc: 'Waktu kirim di masa depan, contoh: <code class="text-xs">2026-06-12T14:30:00.000Z</code>' })
+            @end
+            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+$result = scheduleWaMessage([
+    'token'       =&gt; 'TOKEN_DEVICE',
+    'to'          =&gt; '628123456789',
+    'message'     =&gt; 'Pesan terjadwal',
+    'scheduledAt' =&gt; '2026-06-12T14:30:00.000Z',
+]);
+
+// $result['body']['data']['id']           → ID jadwal
+// $result['body']['data']['scheduledAt'] → waktu jadwal</code></pre>
+          @end
+        @end
+
+        {{-- 6. Response --}}
+        @!docs.section({
+          id: 'response-format',
+          number: '6',
+          title: 'Format Response & Error',
+          description: 'Struktur response standar dari semua endpoint API.'
+        })
+          @card({ class: 'p-5' })
+            <div class="text-sm font-semibold mb-3">Response Sukses (HTTP 200)</div>
+            <pre class="text-[0.85rem] p-0 mb-5"><code class="language-json">{
+  "message": "Message sent successfully",
+  "data": {
+    "device": { "number": "628123456789", "token": "..." },
+    "to": "628123456789"
+  }
+}</code></pre>
+
+            <div class="text-sm font-semibold mb-3">Response Error</div>
+            @!docs.param_table({ title: 'HTTP Status Code' })
+              @!docs.param_row({ name: '422', type: 'integer', required: false, desc: 'Validasi gagal / device tidak connected / nomor tidak valid' })
+              @!docs.param_row({ name: '404', type: 'integer', required: false, desc: 'Device tidak ditemukan' })
+              @!docs.param_row({ name: '500', type: 'integer', required: false, desc: 'Error server / gagal kirim pesan' })
+            @end
+            <pre class="text-[0.85rem] p-0 mt-4"><code class="language-json">{
+  "message": "No active devices found for the provided tokens."
+}</code></pre>
+          @end
+        @end
+
+      </div>
+    </div>
+  </div>
 
 @end
 
 @pushTo('head')
   <link rel="stylesheet" href="/lazy/vendor/highlight/lazy.css">
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
 @end
 
 @pushTo('body')

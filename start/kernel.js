@@ -9,6 +9,7 @@ server.use([
 export const middleware = router.named({
     guest: () => import('#middleware/guest_middleware'),
     auth: () => import('#middleware/auth_middleware'),
+    admin: () => import('#middleware/admin_middleware'),
     wapi: () => import('#middleware/wapi_middleware'),
     adonisBodyParser: () => import('@adonisjs/core/bodyparser_middleware'),
     adonisSession: () => import('@adonisjs/session/session_middleware'),

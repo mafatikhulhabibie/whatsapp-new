@@ -1,0 +1,25 @@
+@let(props = {
+  id: $props.get('id') || '',
+  number: $props.get('number') || '',
+  title: $props.get('title') || '',
+  description: $props.get('description') || '',
+})
+
+<div id="{{ props.id }}" class="scroll-mt-24 pt-2">
+  <div class="flex items-start gap-3 mb-6">
+    @if(props.number)
+      <span class="flex-shrink-0 flex items-center justify-center size-8 rounded-lg bg-accent-500/10 text-accent-700 dark:text-accent-300 text-sm font-bold">
+        {{ props.number }}
+      </span>
+    @end
+    <div>
+      <h2 class="text-xl font-bold">{{ props.title }}</h2>
+      @if(props.description)
+        <p class="text-sm text-cat-600 dark:text-cat-400 mt-1 max-w-2xl">{{ props.description }}</p>
+      @end
+    </div>
+  </div>
+  <div class="flex flex-col gap-6">
+    {{{ await $slots.main() }}}
+  </div>
+</div>

@@ -1,0 +1,188 @@
+@layouts.dash.app({
+  title: 'USERS'
+})
+
+  <div class="lazy-container-sm">
+    <section class="flex flex-row flex-wrap justify-between mb-5 gap-5">
+      <div>
+        <div class="text-lg font-bold">
+          Manajemen User
+        </div>
+        <div class="text-sm text-cat-600 dark:text-cat-400">
+          Kelola user dan role akses.
+        </div>
+      </div>
+      <div>
+        @button({
+          'x-data': '{}',
+          'x-dialog:toggle': 'new-user-modal',
+        })
+          <svg class="size-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,448,512">
+            <path
+              d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"
+              fill="currentColor"
+            />
+          </svg>
+          Tambah User
+        @end
+      </div>
+    </section>
+
+    <section>
+      @card({ class: 'overflow-hidden' })
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-cat-200 dark:border-cat-700 text-left text-cat-600 dark:text-cat-400">
+                <th class="px-5 py-3 font-medium">Nama</th>
+                <th class="px-5 py-3 font-medium">Username</th>
+                <th class="px-5 py-3 font-medium">Role</th>
+                <th class="px-5 py-3 font-medium">Max Device</th>
+                <th class="px-5 py-3 font-medium text-end">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="list-users">
+              @each(user in users)
+                <tr class="border-b border-cat-100 dark:border-cat-800 last:border-0" data-user-id="{{ user.id }}">
+                  <td class="px-5 py-3">{{ user.name }}</td>
+                  <td class="px-5 py-3">{{ user.username }}</td>
+                  <td class="px-5 py-3">
+                    @if(user.role === 'admin')
+                      <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">Admin</span>
+                    @else
+                      <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-cat-100 text-cat-700 dark:bg-cat-700 dark:text-cat-300">User</span>
+                    @end
+                  </td>
+                  <td class="px-5 py-3">{{ user.maxDevices }}</td>
+                  <td class="px-5 py-3">
+                    <div class="flex items-center justify-end gap-2">
+                      @button({
+                        href: route('users.edit', [ user.id ]),
+                        variant: 'outline',
+                        size: 'sm'
+                      })
+                        Edit
+                      @end
+                      @if(auth.user.id !== user.id)
+                        @button({
+                          variant: 'destructive',
+                          size: 'sm',
+                          onclick: `deleteUser(${user.id})`
+                        })
+                          Hapus
+                        @end
+                      @end
+                    </div>
+                  </td>
+                </tr>
+              @end
+            </tbody>
+          </table>
+        </div>
+      @end
+    </section>
+  </div>
+
+  @dialog({
+    id: 'new-user-modal',
+    class: '!max-w-md'
+  })
+    @dialog.body({ class: 'p-5' })
+      @form({
+        id: 'new-user-form',
+        action: route('users.store'),
+        method: 'post'
+      })
+        {{ (typeof csrfField === 'function') ? csrfField() : '' }}
+        <div class="mb-3">
+          @!label({ for: 'name', label: 'Nama' })
+          @!input({ type: 'text', name: 'name', id: 'name', placeholder: 'Nama lengkap', required: true })
+        </div>
+        <div class="mb-3">
+          @!label({ for: 'username', label: 'Username' })
+          @!input({
+            type: 'text',
+            name: 'username',
+            id: 'username',
+            placeholder: 'Username',
+            required: true,
+            oninput: "this.value = this.value.toLowerCase().replace(/ /g, '').replace(/[^a-z0-9_-]/g, '');"
+          })
+        </div>
+        <div class="mb-3">
+          @!label({ for: 'password', label: 'Password' })
+          @!input({ type: 'password', name: 'password', id: 'password', placeholder: 'Password', required: true })
+        </div>
+        <div class="flex gap-3 flex-col md:flex-row mb-3">
+          <div class="w-full">
+            @!label({ for: 'role', label: 'Role' })
+            <select
+              name="role"
+              id="role"
+              required
+              class="appearance-none block w-full px-3 py-2.5 text-sm rounded-md focus:ring-[1.7px] focus:outline-none focus:ring-cat-700 dark:focus:ring-cat-200 focus:border-transparent transition duration-150 ease-in-out bg-white dark:bg-cat-700/10 border border-cat-300 dark:border-cat-700/50"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="w-full">
+            @!label({ for: 'maxDevices', label: 'Max Device' })
+            @!input({ type: 'number', name: 'maxDevices', id: 'maxDevices', value: '3', min: '0', max: '100', required: true })
+          </div>
+        </div>
+        <div class="text-end">
+          @button({ type: 'submit' })
+            Tambah
+          @end
+        </div>
+      @end
+    @end
+  @end
+
+@end
+
+@pushTo('body')
+  <script>
+    window.addEventListener('form', ({ detail }) => {
+      if (detail.id != 'new-user-form') return
+
+      if (detail?.ok) {
+        detail.element.target.reset()
+        Alpine.store('dialog').close('new-user-modal')
+        window.location.reload()
+      }
+    })
+
+    async function deleteUser(id) {
+      zalert({
+        title: 'Hapus User',
+        text: 'User dan semua device-nya akan dihapus.',
+        confirmText: 'Hapus',
+        cancelText: 'Batal',
+      }).then(async (res) => {
+        if (!res?.confirmed) return
+
+        const toastr = toast.loading({ title: 'Menghapus user...' })
+        const response = await fetch(`{{ route('users.destroy', [ ':id' ]) }}`.replace(':id', id), {
+          method: 'DELETE',
+          headers: {
+            'x-csrf-token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        })
+
+        const contentType = response.headers.get('content-type') || ''
+        const isJson = contentType.includes('application/json')
+        const data = isJson ? await response.json() : {}
+
+        if (response.ok) {
+          document.querySelector(`[data-user-id="${id}"]`)?.remove()
+          toastr.success(data.message || 'User berhasil dihapus.')
+        } else {
+          toastr.error(data.message || 'Gagal menghapus user.')
+        }
+      })
+    }
+  </script>
+@end

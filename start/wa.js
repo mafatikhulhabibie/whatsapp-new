@@ -1,5 +1,6 @@
 import app from '@adonisjs/core/services/app';
 import WASocketManager from '#wa/whatsapp';
+import ScheduledMessageProcessor from '#services/scheduled_message_processor';
 import ws from '#services/ws';
 import User from '#models/user';
 import Device from '#models/device';
@@ -9,6 +10,7 @@ app.ready(async () => {
         return;
     const as = await WASocketManager.autoStart();
     consola.info(as?.message);
+    ScheduledMessageProcessor.start();
     ws.boot();
     const io = ws.io;
     io?.of('wa').use(async (socket, next) => {
@@ -136,11 +138,13 @@ app.ready(async () => {
     });
     process.on('SIGTERM', async () => {
         consola.info('Received SIGTERM, shutting down gracefully...');
+        ScheduledMessageProcessor.stop();
         await WASocketManager.shutdown();
         process.exit(0);
     });
     process.on('SIGINT', async () => {
         consola.info('Received SIGINT, shutting down gracefully...');
+        ScheduledMessageProcessor.stop();
         await WASocketManager.shutdown();
         process.exit(0);
     });

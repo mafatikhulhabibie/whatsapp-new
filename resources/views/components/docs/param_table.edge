@@ -1,0 +1,24 @@
+@let(props = {
+  title: $props.get('title') || 'Parameter',
+})
+
+<div>
+  @if(props.title)
+    <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">{{ props.title }}</div>
+  @end
+  <div class="overflow-x-auto rounded-lg border border-cat-200 dark:border-cat-700">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-cat-200 dark:border-cat-700 bg-cat-50/80 dark:bg-cat-900/40 text-left text-cat-600 dark:text-cat-400">
+          <th class="px-4 py-2.5 font-medium w-36">Field</th>
+          <th class="px-4 py-2.5 font-medium w-24">Tipe</th>
+          <th class="px-4 py-2.5 font-medium w-20">Wajib</th>
+          <th class="px-4 py-2.5 font-medium">Keterangan</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-cat-100 dark:divide-cat-800">
+        {{{ await $slots.main() }}}
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -35,6 +35,15 @@ export default class DevicesController {
             if (!phoneNumber || !phoneNumber.isValid()) {
                 return response.unprocessableEntity({ message: 'Please enter a valid phone number.' });
             }
+            const authUser = auth.use('web').user;
+            const [{ $extras: { total: deviceCount } }] = await Device.query()
+                .where('user_id', authUser.id)
+                .count('* as total');
+            if (Number(deviceCount) >= authUser.maxDevices) {
+                return response.unprocessableEntity({
+                    message: `Batas device tercapai (maks. ${authUser.maxDevices}). Hubungi admin.`,
+                });
+            }
             const trx = await db.transaction();
             try {
                 const device = await Device.create({

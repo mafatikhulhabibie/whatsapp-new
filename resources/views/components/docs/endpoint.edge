@@ -1,0 +1,27 @@
+@let(props = {
+  id: $props.get('id') || '',
+  title: $props.get('title') || '',
+  method: $props.get('method') || 'POST',
+  url: $props.get('url') || '',
+  description: $props.get('description') || '',
+})
+
+<section id="{{ props.id }}" class="scroll-mt-24">
+  @card({ class: 'overflow-hidden' })
+    <div class="border-b border-cat-200 dark:border-cat-700 px-5 py-4 bg-cat-50/50 dark:bg-cat-900/30">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
+        @badge({ variant: 'secondary' })
+          {{ props.method }}
+        @end
+        <h3 class="text-base font-semibold">{{ props.title }}</h3>
+      </div>
+      <code class="text-xs select-all break-all text-cat-700 dark:text-cat-300">{{ props.url }}</code>
+      @if(props.description)
+        <p class="text-sm text-cat-600 dark:text-cat-400 mt-2">{{{ props.description }}}</p>
+      @end
+    </div>
+    <div class="p-5 flex flex-col gap-5">
+      {{{ await $slots.main() }}}
+    </div>
+  @end
+</section>

@@ -1,0 +1,19 @@
+@let(props = {
+  name: $props.get('name') || '',
+  type: $props.get('type') || 'string',
+  required: $props.get('required') ?? true,
+  desc: $props.get('desc') || '',
+})
+
+<tr>
+  <td class="px-4 py-2.5"><code class="text-xs">{{ props.name }}</code></td>
+  <td class="px-4 py-2.5 text-cat-600 dark:text-cat-400">{{ props.type }}</td>
+  <td class="px-4 py-2.5">
+    @if(props.required)
+      <span class="text-red-600 dark:text-red-400 text-xs font-medium">Ya</span>
+    @else
+      <span class="text-cat-500 text-xs">Tidak</span>
+    @end
+  </td>
+  <td class="px-4 py-2.5 text-cat-600 dark:text-cat-400">{{{ props.desc }}}</td>
+</tr>

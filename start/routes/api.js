@@ -3,6 +3,7 @@ export default () => {
     router
         .group(() => {
         router.route('/message', ['GET', 'POST'], '#controllers/api/message_controller.index');
+        router.post('/message/schedule', '#controllers/api/scheduled_message_controller.store');
         router.post('/message/query', '#controllers/api/message_controller.query');
         router.route('/group/fetch', ['GET', 'POST'], '#controllers/api/group_controller.index');
         router.route('/device/status', ['GET', 'POST'], '#controllers/api/device_controller.status');

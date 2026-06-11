@@ -1,5 +1,6 @@
 import consola from 'consola';
 import serialize from '#wa/utils/serialize';
+import ChatMessageStore from '#services/chat_message_store';
 import axios from 'axios';
 const WEBHOOK_TIMEOUT = 5000;
 export default async function ({ id, sock, event }) {
@@ -18,6 +19,16 @@ export default async function ({ id, sock, event }) {
         });
         if (!m)
             continue;
+        try {
+            await ChatMessageStore.saveFromSerialized(id, message, m);
+        }
+        catch (error) {
+            consola.error(`[CHAT: ${id}] Failed to save message: ${error.message}`);
+        }
+        // Jangan kirim webhook untuk pesan yang dikirim bot sendiri (cegah loop balasan ganda)
+        if (m.fromMe || m.flags?.fromMe || m.key?.fromMe) {
+            continue;
+        }
         if (m.webhook) {
             try {
                 await Promise.all([
