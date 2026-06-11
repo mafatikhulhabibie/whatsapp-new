@@ -80,16 +80,19 @@
             <div class="border-b border-cat-200 dark:border-cat-700 px-5 py-3 bg-cat-50/50 dark:bg-cat-900/30">
               <div class="text-xs font-semibold uppercase tracking-wide text-cat-500">wa_helper.php</div>
             </div>
-            <pre class="text-[0.85rem] p-5 overflow-x-auto"><code class="language-php">&lt;?php
+          @!docs.code({
+            language: 'php',
+            class: 'text-[0.85rem] p-5 overflow-x-auto',
+            content: `<?php
 function waApiRequest(string $url, array $payload): array
 {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
-        CURLOPT_POST           =&gt; true,
-        CURLOPT_HTTPHEADER     =&gt; ['Content-Type: application/json'],
-        CURLOPT_POSTFIELDS     =&gt; json_encode($payload),
-        CURLOPT_RETURNTRANSFER =&gt; true,
-        CURLOPT_TIMEOUT        =&gt; 30,
+        CURLOPT_POST           => true,
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+        CURLOPT_POSTFIELDS     => json_encode($payload),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 30,
     ]);
 
     $response = curl_exec($ch);
@@ -97,28 +100,29 @@ function waApiRequest(string $url, array $payload): array
     curl_close($ch);
 
     return [
-        'status' =&gt; $httpCode,
-        'body'   =&gt; json_decode($response, true),
+        'status' => $httpCode,
+        'body'   => json_decode($response, true),
     ];
 }
 
 /** Kirim pesan langsung */
 function sendWaMessage(array $payload): array
 {
-    return waApiRequest('{{ baseUrl }}/api/message', $payload);
+    return waApiRequest('${baseUrl}/api/message', $payload);
 }
 
 /** Jadwalkan pesan */
 function scheduleWaMessage(array $payload): array
 {
-    return waApiRequest('{{ baseUrl }}/api/message/schedule', $payload);
+    return waApiRequest('${baseUrl}/api/message/schedule', $payload);
 }
 
 /** Request ke endpoint device (start, status, stop, logout) */
 function waDeviceRequest(string $endpoint, array $payload): array
 {
-    return waApiRequest('{{ baseUrl }}/api/device/' . $endpoint, $payload);
-}</code></pre>
+    return waApiRequest('${baseUrl}/api/device/' . $endpoint, $payload);
+}`
+          })
           @end
 
           @!docs.param_table({ title: 'Fungsi Helper' })
@@ -158,10 +162,13 @@ function waDeviceRequest(string $endpoint, array $payload): array
             @end
             <div>
               <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">Contoh PHP</div>
-              <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+            @!docs.code({
+              language: 'php',
+              content: `<?php
 $result = waDeviceRequest('start', [
-    'token' =&gt; 'TOKEN_DEVICE',
-]);</code></pre>
+    'token' => 'TOKEN_DEVICE',
+]);`
+            })
             </div>
           @end
 
@@ -177,17 +184,20 @@ $result = waDeviceRequest('start', [
             @end
             <div>
               <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">Contoh PHP</div>
-              <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
-$result = waDeviceRequest('status', ['token' =&gt; 'TOKEN_DEVICE']);
+            @!docs.code({
+              language: 'php',
+              content: `<?php
+$result = waDeviceRequest('status', ['token' => 'TOKEN_DEVICE']);
 $data   = $result['body']['data'] ?? [];
 
 // Tampilkan QR:
-// echo '&lt;img src="' . ($data['connection']['qr'] ?? '') . '"&gt;';
+// echo '<img src="' . ($data['connection']['qr'] ?? '') . '">';
 
 // Field penting:
 // $data['status']                          → connecting | connected
 // $data['connection']['qr']                → data:image/png;base64,...
-// $data['connection']['pairingCode']       → null atau kode pairing</code></pre>
+// $data['connection']['pairingCode']       → null atau kode pairing`
+            })
             </div>
           @end
 
@@ -204,14 +214,17 @@ $data   = $result['body']['data'] ?? [];
             @end
             <div>
               <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">Contoh PHP</div>
-              <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+            @!docs.code({
+              language: 'php',
+              content: `<?php
 waDeviceRequest('start', [
-    'token'          =&gt; 'TOKEN_DEVICE',
-    'usePairingCode' =&gt; true,
+    'token'          => 'TOKEN_DEVICE',
+    'usePairingCode' => true,
 ]);
 
-$status = waDeviceRequest('status', ['token' =&gt; 'TOKEN_DEVICE']);
-$code   = $status['body']['data']['connection']['pairingCode'] ?? null;</code></pre>
+$status = waDeviceRequest('status', ['token' => 'TOKEN_DEVICE']);
+$code   = $status['body']['data']['connection']['pairingCode'] ?? null;`
+            })
             </div>
           @end
 
@@ -224,9 +237,12 @@ $code   = $status['body']['data']['connection']['pairingCode'] ?? null;</code></
           })
             <div>
               <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-2">Contoh PHP</div>
-              <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
-waDeviceRequest('stop',   ['token' =&gt; 'TOKEN_DEVICE']);
-waDeviceRequest('logout', ['token' =&gt; 'TOKEN_DEVICE']);</code></pre>
+            @!docs.code({
+              language: 'php',
+              content: `<?php
+waDeviceRequest('stop',   ['token' => 'TOKEN_DEVICE']);
+waDeviceRequest('logout', ['token' => 'TOKEN_DEVICE']);`
+            })
             </div>
           @end
         @end
@@ -251,12 +267,15 @@ waDeviceRequest('logout', ['token' =&gt; 'TOKEN_DEVICE']);</code></pre>
             @!docs.param_table({})
               @!docs.param_row({ name: 'message', type: 'string', required: true, desc: 'Isi pesan teks' })
             @end
-            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+            @!docs.code({
+              language: 'php',
+              content: `<?php
 $result = sendWaMessage([
-    'token'   =&gt; 'TOKEN_DEVICE',
-    'to'      =&gt; '628123456789',
-    'message' =&gt; 'Halo, ini pesan teks',
-]);</code></pre>
+    'token'   => 'TOKEN_DEVICE',
+    'to'      => '628123456789',
+    'message' => 'Halo, ini pesan teks',
+]);`
+            })
           @end
 
           @!docs.endpoint({ id: 'msg-image', title: 'Kirim Gambar', method: 'POST', url: baseUrl + '/api/message' })
@@ -264,13 +283,16 @@ $result = sendWaMessage([
               @!docs.param_row({ name: 'image', type: 'string (URL)', required: true, desc: 'URL gambar publik' })
               @!docs.param_row({ name: 'caption', type: 'string', required: false, desc: 'Caption gambar' })
             @end
-            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+            @!docs.code({
+              language: 'php',
+              content: `<?php
 $result = sendWaMessage([
-    'token'   =&gt; 'TOKEN_DEVICE',
-    'to'      =&gt; '628123456789',
-    'image'   =&gt; 'https://example.com/foto.jpg',
-    'caption' =&gt; 'Ini caption gambar',
-]);</code></pre>
+    'token'   => 'TOKEN_DEVICE',
+    'to'      => '628123456789',
+    'image'   => 'https://example.com/foto.jpg',
+    'caption' => 'Ini caption gambar',
+]);`
+            })
           @end
 
           @!docs.endpoint({ id: 'msg-document', title: 'Kirim Dokumen', method: 'POST', url: baseUrl + '/api/message' })
@@ -278,13 +300,16 @@ $result = sendWaMessage([
               @!docs.param_row({ name: 'document', type: 'string (URL)', required: true, desc: 'URL file dokumen' })
               @!docs.param_row({ name: 'filename', type: 'string', required: false, desc: 'Nama file tampilan' })
             @end
-            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+            @!docs.code({
+              language: 'php',
+              content: `<?php
 $result = sendWaMessage([
-    'token'    =&gt; 'TOKEN_DEVICE',
-    'to'       =&gt; '628123456789',
-    'document' =&gt; 'https://example.com/laporan.pdf',
-    'filename' =&gt; 'Laporan Bulanan',
-]);</code></pre>
+    'token'    => 'TOKEN_DEVICE',
+    'to'       => '628123456789',
+    'document' => 'https://example.com/laporan.pdf',
+    'filename' => 'Laporan Bulanan',
+]);`
+            })
           @end
 
           @!docs.endpoint({ id: 'msg-video', title: 'Kirim Video', method: 'POST', url: baseUrl + '/api/message' })
@@ -292,13 +317,16 @@ $result = sendWaMessage([
               @!docs.param_row({ name: 'video', type: 'string (URL)', required: true, desc: 'URL video publik' })
               @!docs.param_row({ name: 'caption', type: 'string', required: false, desc: 'Caption video' })
             @end
-            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+            @!docs.code({
+              language: 'php',
+              content: `<?php
 $result = sendWaMessage([
-    'token'   =&gt; 'TOKEN_DEVICE',
-    'to'      =&gt; '628123456789',
-    'video'   =&gt; 'https://example.com/video.mp4',
-    'caption' =&gt; 'Ini caption video',
-]);</code></pre>
+    'token'   => 'TOKEN_DEVICE',
+    'to'      => '628123456789',
+    'video'   => 'https://example.com/video.mp4',
+    'caption' => 'Ini caption video',
+]);`
+            })
           @end
 
           @!docs.endpoint({ id: 'msg-location', title: 'Kirim Lokasi', method: 'POST', url: baseUrl + '/api/message' })
@@ -306,13 +334,16 @@ $result = sendWaMessage([
               @!docs.param_row({ name: 'latitude', type: 'float', required: true, desc: 'Koordinat latitude' })
               @!docs.param_row({ name: 'longitude', type: 'float', required: true, desc: 'Koordinat longitude' })
             @end
-            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+            @!docs.code({
+              language: 'php',
+              content: `<?php
 $result = sendWaMessage([
-    'token'     =&gt; 'TOKEN_DEVICE',
-    'to'        =&gt; '628123456789',
-    'latitude'  =&gt; -6.200000,
-    'longitude' =&gt; 106.816666,
-]);</code></pre>
+    'token'     => 'TOKEN_DEVICE',
+    'to'        => '628123456789',
+    'latitude'  => -6.200000,
+    'longitude' => 106.816666,
+]);`
+            })
           @end
         @end
 
@@ -336,16 +367,19 @@ $result = sendWaMessage([
               @!docs.param_row({ name: 'message', type: 'string', required: true, desc: 'Isi pesan (atau field tipe lain: image, video, dll)' })
               @!docs.param_row({ name: 'scheduledAt', type: 'string (ISO 8601)', required: true, desc: 'Waktu kirim di masa depan, contoh: <code class="text-xs">2026-06-12T14:30:00.000Z</code>' })
             @end
-            <pre class="text-[0.85rem] p-0"><code class="language-php">&lt;?php
+            @!docs.code({
+              language: 'php',
+              content: `<?php
 $result = scheduleWaMessage([
-    'token'       =&gt; 'TOKEN_DEVICE',
-    'to'          =&gt; '628123456789',
-    'message'     =&gt; 'Pesan terjadwal',
-    'scheduledAt' =&gt; '2026-06-12T14:30:00.000Z',
+    'token'       => 'TOKEN_DEVICE',
+    'to'          => '628123456789',
+    'message'     => 'Pesan terjadwal',
+    'scheduledAt' => '2026-06-12T14:30:00.000Z',
 ]);
 
 // $result['body']['data']['id']           → ID jadwal
-// $result['body']['data']['scheduledAt'] → waktu jadwal</code></pre>
+// $result['body']['data']['scheduledAt'] → waktu jadwal`
+            })
           @end
         @end
 

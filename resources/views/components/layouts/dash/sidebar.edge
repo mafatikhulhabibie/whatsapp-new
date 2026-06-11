@@ -15,14 +15,25 @@
     :class="{'translate-x-0': $store.sidebar.isOpen}"
     class="lazy-sidebar-wrapper lazy-gradient"
   >
-    <div class="lazy-sidebar-body">
+    <div class="lazy-sidebar-body flex flex-col">
       <div class="lazy-sidebar-header">
-        <a class="lazy-sidebar-brand" href="/" aria-label="Brand">WAPI</a>
+        <a class="lazy-sidebar-brand flex items-center gap-2.5 min-w-0" href="/" aria-label="Brand">
+          <img
+            src="/assets/labudda-logo.DFn8jr4R.png"
+            alt="Labudda"
+            class="h-8 w-auto object-contain flex-shrink-0"
+            loading="lazy"
+          >
+          <span class="truncate">WAPI</span>
+        </a>
       </div>
-      <div class="lazy-sidebar-scroll-content" data-simplebar>
+      <div class="lazy-sidebar-scroll-content flex-1 min-h-0" data-simplebar>
         <nav>
           @include('components/layouts/dash/menu')
         </nav>
+      </div>
+      <div class="px-4 py-3 border-t border-cat-200/80 dark:border-cat-700/80">
+        @!labudda_credit({ size: 'sm' })
       </div>
     </div>
   </div>
