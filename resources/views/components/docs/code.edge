@@ -2,4 +2,6 @@
 @let(className = $props.get('class') || 'text-[0.85rem] p-0')
 @let(content = $props.get('content') || '')
 
-<pre class="{{ className }}"><code class="language-{{ language }}">{{ content }}</code></pre>
+<div class="overflow-x-auto max-w-full">
+  <pre class="{{ className }}"><code class="language-{{ language }}">{{ content }}</code></pre>
+</div>

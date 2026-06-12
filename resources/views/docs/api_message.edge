@@ -2,7 +2,7 @@
   title: 'Dokumentasi API'
 })
 
-  <div class="max-w-6xl mx-auto px-4 pb-16">
+  <div class="lazy-container-sm min-w-0 pb-16">
     {{-- Header --}}
     <section class="mb-8 pt-2">
       <div class="text-2xl font-bold mb-2">Dokumentasi API</div>
@@ -12,10 +12,10 @@
       </p>
     </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)] gap-8 items-start">
+    <div class="grid grid-cols-1 xl:grid-cols-[220px_minmax(0,1fr)] gap-8 items-start min-w-0">
 
       {{-- Daftar Isi --}}
-      <aside class="lg:sticky lg:top-6">
+      <aside class="xl:sticky xl:top-6 min-w-0">
         @card({ class: 'p-4' })
           <div class="text-xs font-semibold uppercase tracking-wide text-cat-500 mb-3">Daftar Isi</div>
           <nav class="flex flex-col gap-1 text-sm">
@@ -392,13 +392,15 @@ $result = scheduleWaMessage([
         })
           @card({ class: 'p-5' })
             <div class="text-sm font-semibold mb-3">Response Sukses (HTTP 200)</div>
-            <pre class="text-[0.85rem] p-0 mb-5"><code class="language-json">{
+            <div class="overflow-x-auto max-w-full mb-5">
+              <pre class="text-[0.85rem] p-0"><code class="language-json">{
   "message": "Message sent successfully",
   "data": {
     "device": { "number": "628123456789", "token": "..." },
     "to": "628123456789"
   }
 }</code></pre>
+            </div>
 
             <div class="text-sm font-semibold mb-3">Response Error</div>
             @!docs.param_table({ title: 'HTTP Status Code' })
@@ -406,9 +408,11 @@ $result = scheduleWaMessage([
               @!docs.param_row({ name: '404', type: 'integer', required: false, desc: 'Device tidak ditemukan' })
               @!docs.param_row({ name: '500', type: 'integer', required: false, desc: 'Error server / gagal kirim pesan' })
             @end
-            <pre class="text-[0.85rem] p-0 mt-4"><code class="language-json">{
+            <div class="overflow-x-auto max-w-full mt-4">
+              <pre class="text-[0.85rem] p-0"><code class="language-json">{
   "message": "No active devices found for the provided tokens."
 }</code></pre>
+            </div>
           @end
         @end
 

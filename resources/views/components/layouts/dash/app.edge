@@ -45,7 +45,7 @@
 <body class="lazy-body">
   <div class="lazy-layout">
       @include('components/layouts/dash/sidebar')
-      <main class="lazy-main">
+      <main class="lazy-main min-w-0">
           @include('components/layouts/dash/header')
           {{{ await $slots.main() }}}
       </main>
