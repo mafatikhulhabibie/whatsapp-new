@@ -1,0 +1,28 @@
+@let(size = $props.get('size') || 'sm')
+@let(showLogo = $props.get('showLogo') !== false)
+
+@if(!showLogo)
+  <span class="{{ size === 'lg' ? 'text-xs' : 'text-[11px]' }} text-cat-500 dark:text-cat-400 leading-tight">
+    Organized By. Labudda
+  </span>
+@elseif(size === 'lg')
+  <div class="flex items-center gap-2">
+    <img
+      src="/assets/labudda-logo.DFn8jr4R.png"
+      alt="Labudda"
+      class="h-5 w-5 object-cover object-left flex-shrink-0"
+      loading="lazy"
+    >
+    <span class="text-[11px] text-cat-500 dark:text-cat-400 leading-tight">Organized By. Labudda</span>
+  </div>
+@else
+  <div class="flex items-center gap-1.5">
+    <img
+      src="/assets/labudda-logo.DFn8jr4R.png"
+      alt="Labudda"
+      class="h-4 w-4 object-cover object-left flex-shrink-0"
+      loading="lazy"
+    >
+    <span class="text-[10px] text-cat-500 dark:text-cat-400 leading-tight">Organized By. Labudda</span>
+  </div>
+@end
